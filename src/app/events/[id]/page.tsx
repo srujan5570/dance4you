@@ -12,14 +12,15 @@ async function getEvent(id: string, baseUrl?: string) {
   return res.json();
 }
 
-export default async function EventDetail({ params }: { params: { id: string } }) {
+export default async function EventDetail({ params }: { params: Promise<{ id: string }> }) {
   const h = headers();
   const proto = h.get("x-forwarded-proto") ?? "http";
   const host = h.get("host") ?? "localhost:3000";
   const runtimeBase = `${proto}://${host}`;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? runtimeBase;
 
-  const event = await getEvent(params.id, baseUrl);
+  const { id } = await params;
+  const event = await getEvent(id, baseUrl);
   if (!event) return notFound();
 
   return (
