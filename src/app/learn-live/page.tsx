@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function LearnLive() {
   const dances = [
@@ -81,7 +82,7 @@ export default function LearnLive() {
             Curious To Know Things Here It is.
           </h2>
           <p className="mt-3 text-sm sm:text-base md:text-lg" style={{ color: "#d35400" }}>
-            Don’t you feel that "Dance" is the language we can connect with anyone in this world,
+            Don’t you feel that &quot;Dance&quot; is the language we can connect with anyone in this world,
             no matter where they are from?
           </p>
         </div>
@@ -170,12 +171,12 @@ export default function LearnLive() {
                   >
                     Close
                   </button>
-                  <a
+                  <Link
                     href="/events"
                     className="px-4 py-2 rounded bg-black text-white border border-orange-500 hover:opacity-90"
                   >
                     Explore Classes
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

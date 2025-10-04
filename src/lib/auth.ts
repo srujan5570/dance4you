@@ -59,10 +59,15 @@ export async function readSessionCookie(): Promise<{ userId: string; role: "STUD
   return verifyToken(token);
 }
 
-// NextResponse has a cookies() helper for setting cookies in route handlers. Accept either NextResponse or a standard Response with cookies property.
+// Helper type to represent the cookies API that NextResponse exposes
+type CookiesApi = {
+  set: (name: string, value: string, options: { httpOnly?: boolean; sameSite?: "lax" | "strict" | "none"; path?: string; secure?: boolean; maxAge?: number }) => void;
+};
+
+// Route handlers use NextResponse; ensure we access its cookies API safely
 export function commitSessionCookie(res: Response | NextResponse, token: string, maxAgeSeconds?: number): void {
-  const cookiesApi: any = (res as any).cookies ?? undefined;
-  cookiesApi?.set?.("session", token, {
+  const cookiesApi = (res as any).cookies as CookiesApi | undefined;
+  cookiesApi?.set("session", token, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
@@ -72,8 +77,8 @@ export function commitSessionCookie(res: Response | NextResponse, token: string,
 }
 
 export function clearSessionCookie(res: Response | NextResponse): void {
-  const cookiesApi: any = (res as any).cookies ?? undefined;
-  cookiesApi?.set?.("session", "", {
+  const cookiesApi = (res as any).cookies as CookiesApi | undefined;
+  cookiesApi?.set("session", "", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
