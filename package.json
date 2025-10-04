@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && next build",
+    "prebuild": "node scripts/set-env-from-neon.js",
+    "build": "npm run prebuild && prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "prisma db seed",
