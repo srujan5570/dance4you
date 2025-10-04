@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import Link from "next/link";
 
 async function getEvent(id: string, baseUrl?: string) {
   const url = `${baseUrl ?? ""}/api/events/${id}`;
@@ -61,11 +62,11 @@ export default async function EventDetail({ params }: { params: { id: string } }
             <div className="font-medium">{event.date}</div>
             <div className="mt-3 text-sm opacity-80">Style</div>
             <div className="font-medium">{event.style}</div>
-            <a href={`/events/${event.id}/book`} className="block mt-4">
+            <Link href={`/events/${event.id}/book`} className="block mt-4">
               <button className="w-full rounded bg-[#f97316] text-white py-2 font-medium">
                 Book Now
               </button>
-            </a>
+            </Link>
           </div>
         </aside>
       </section>

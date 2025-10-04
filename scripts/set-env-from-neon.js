@@ -4,6 +4,7 @@
   and persist them into a .env file so subsequent processes (Prisma CLI) can read them.
 */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require("fs");
 const path = require("path");
 
@@ -72,7 +73,7 @@ if (envLines.length) {
     const finalContent = [filtered, ...envLines].filter(Boolean).join("\n");
     fs.writeFileSync(envPath, finalContent, "utf8");
     console.log(".env updated with DATABASE_URL and DIRECT_URL for Prisma.");
-  } catch (e) {
-    console.error("Failed to write .env:", e);
+  } catch {
+    console.error("Failed to write .env");
   }
 }

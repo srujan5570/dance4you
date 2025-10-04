@@ -20,11 +20,11 @@ export async function POST(req: Request) {
     const passwordHash = await hashPassword(password);
     const user = await prisma.user.create({ data: { email, name, passwordHash, role } });
     const expSeconds = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; // 30 days persistent session
-    const token = signToken({ userId: user.id, role: user.role as any, exp: expSeconds });
+    const token = signToken({ userId: user.id, role: user.role as "STUDENT" | "STUDIO_OWNER", exp: expSeconds });
     const res = NextResponse.json({ id: user.id, email: user.email, role: user.role, name: user.name }, { status: 201 });
     commitSessionCookie(res, token, 60 * 60 * 24 * 30);
     return res;
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 }

@@ -4,6 +4,8 @@ import "./globals.css";
 // Add brand script font
 import { Dancing_Script } from "next/font/google";
 import { readSessionCookie } from "../lib/auth";
+import Link from "next/link";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +42,7 @@ export default async function RootLayout({
         <header className="sticky top-0 z-30 bg-[#fff9e6] shadow-sm">
           <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/logo-dance.svg" alt="Dance 4 You" className="h-10 w-10" />
+              <Image src="/logo-dance.svg" alt="Dance 4 You" width={40} height={40} className="h-10 w-10" />
               <span
                 className="text-2xl font-bold italic"
                 style={{ fontFamily: "var(--font-dance-script)", color: "#f97316" }}
@@ -50,17 +52,17 @@ export default async function RootLayout({
             </div>
 
             <nav className="hidden md:flex items-center gap-6 text-[15px] italic" style={{ color: "#167C36" }}>
-              <a href="/" className="hover:underline">Home</a>
-              <a href="/learn-live" className="hover:underline">Learn &amp; Live</a>
-              <a href="/events" className="hover:underline">Book Online</a>
-              <a href="/submit-event" className="hover:underline">Submit Event</a>
+              <Link href="/" className="hover:underline">Home</Link>
+              <Link href="/learn-live" className="hover:underline">Learn &amp; Live</Link>
+              <Link href="/events" className="hover:underline">Book Online</Link>
+              <Link href="/submit-event" className="hover:underline">Submit Event</Link>
             </nav>
 
             <div className="flex items-center gap-3">
               {session ? (
-                <a href="/dashboard" className="text-sm font-medium hover:underline">My Dashboard</a>
+                <Link href="/dashboard" className="text-sm font-medium hover:underline">My Dashboard</Link>
               ) : (
-                <a href="/auth/login" className="text-sm font-medium hover:underline">Log In</a>
+                <Link href="/auth/login" className="text-sm font-medium hover:underline">Log In</Link>
               )}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
