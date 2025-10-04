@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import Link from "next/link";
 
 async function getEvent(id: string, baseUrl?: string) {
   const url = `${baseUrl ?? ""}/api/events/${id}`;
@@ -12,15 +11,14 @@ async function getEvent(id: string, baseUrl?: string) {
   return res.json();
 }
 
-export default async function EventDetail({ params }: { params: Promise<{ id: string }> }) {
-  const h = headers();
+export default async function EventDetail({ params }: { params: { id: string } }) {
+  const h = await headers();
   const proto = h.get("x-forwarded-proto") ?? "http";
   const host = h.get("host") ?? "localhost:3000";
   const runtimeBase = `${proto}://${host}`;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? runtimeBase;
 
-  const { id } = await params;
-  const event = await getEvent(id, baseUrl);
+  const event = await getEvent(params.id, baseUrl);
   if (!event) return notFound();
 
   return (
@@ -63,11 +61,11 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
             <div className="font-medium">{event.date}</div>
             <div className="mt-3 text-sm opacity-80">Style</div>
             <div className="font-medium">{event.style}</div>
-            <Link href={`/events/${event.id}/book`} className="block mt-4">
+            <a href={`/events/${event.id}/book`} className="block mt-4">
               <button className="w-full rounded bg-[#f97316] text-white py-2 font-medium">
                 Book Now
               </button>
-            </Link>
+            </a>
           </div>
         </aside>
       </section>
