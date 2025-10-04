@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     });
 
     const expSeconds = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; // 30 days session
-    const token = signToken({ userId: updated.id, role: updated.role as any, exp: expSeconds });
+    const token = signToken({ userId: updated.id, role: updated.role as "STUDENT" | "STUDIO_OWNER", exp: expSeconds });
     const res = NextResponse.json({ id: updated.id, email: updated.email, role: updated.role, name: updated.name }, { status: 200 });
     commitSessionCookie(res, token, 60 * 60 * 24 * 30);
     return res;
