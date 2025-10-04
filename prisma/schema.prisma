@@ -1,10 +1,11 @@
 // prisma/schema.prisma
-// SQLite for local dev; can switch provider and connection string for production later
+// Use PostgreSQL for production (Vercel). For local dev, set DATABASE_URL to a local Postgres or hosted Postgres.
 
 // Specify database
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // Generate Prisma Client
