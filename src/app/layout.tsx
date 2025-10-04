@@ -5,7 +5,6 @@ import "./globals.css";
 import { Dancing_Script } from "next/font/google";
 import { readSessionCookie } from "../lib/auth";
 import Link from "next/link";
-import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,13 +41,15 @@ export default async function RootLayout({
         <header className="sticky top-0 z-30 bg-[#fff9e6] shadow-sm">
           <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Image src="/logo-dance.svg" alt="Dance 4 You" width={40} height={40} className="h-10 w-10" />
-              <span
-                className="text-2xl font-bold italic"
-                style={{ fontFamily: "var(--font-dance-script)", color: "#f97316" }}
-              >
-                Dance 4 You
-              </span>
+              <Link href="/" className="flex items-center gap-3">
+                <img src="/logo-dance.svg" alt="Dance 4 You" className="h-10 w-10" />
+                <span
+                  className="text-2xl font-bold italic"
+                  style={{ fontFamily: "var(--font-dance-script)", color: "#f97316" }}
+                >
+                  Dance 4 You
+                </span>
+              </Link>
             </div>
 
             <nav className="hidden md:flex items-center gap-6 text-[15px] italic" style={{ color: "#167C36" }}>
@@ -73,17 +74,28 @@ export default async function RootLayout({
               >
                 <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-3.33 0-10 1.67-10 5v1h20v-1c0-3.33-6.67-5-10-5Z" />
               </svg>
-              <button aria-label="Menu" className="md:hidden p-2 border rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="h-5 w-5"
-                  aria-hidden
-                >
-                  <path d="M3 6h18v2H3Zm0 5h18v2H3Zm0 5h18v2H3Z" />
-                </svg>
-              </button>
+              {/* Mobile menu */}
+              <details className="md:hidden relative">
+                <summary aria-label="Menu" className="p-2 border rounded-full list-none cursor-pointer">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="h-5 w-5"
+                    aria-hidden
+                  >
+                    <path d="M3 6h18v2H3Zm0 5h18v2H3Zm0 5h18v2H3Z" />
+                  </svg>
+                </summary>
+                <div className="absolute right-0 mt-2 w-48 rounded-md border bg-white shadow-lg p-3">
+                  <nav className="flex flex-col text-sm italic" style={{ color: "#167C36" }}>
+                    <Link href="/" className="py-1 hover:underline">Home</Link>
+                    <Link href="/learn-live" className="py-1 hover:underline">Learn &amp; Live</Link>
+                    <Link href="/events" className="py-1 hover:underline">Book Online</Link>
+                    <Link href="/submit-event" className="py-1 hover:underline">Submit Event</Link>
+                  </nav>
+                </div>
+              </details>
             </div>
           </div>
         </header>
