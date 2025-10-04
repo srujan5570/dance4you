@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LearnLive() {
   const dances = [
@@ -158,7 +159,7 @@ export default function LearnLive() {
           <div className="relative z-10 max-w-2xl w-[92%] md:w-[80%] bg-white rounded-lg shadow-xl overflow-hidden">
             <div className="flex flex-col md:flex-row">
               <div className="md:w-1/2">
-                <img src={modalDance.img} alt={modalDance.name} className="w-full h-64 md:h-full object-cover" />
+                <Image src={modalDance.img} alt={modalDance.name} width={800} height={600} className="w-full h-64 md:h-full object-cover" />
               </div>
               <div className="md:w-1/2 p-5">
                 <h3 className="text-xl font-semibold">{modalDance.name}</h3>
