@@ -15,7 +15,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
     if (!user.emailVerified) {
-      return NextResponse.json({ error: "Email not verified. Please register again to receive a new code." }, { status: 403 });
+      // Allow legacy users (created before OTP rollout) who have no pending OTP to log in
+      if (!user.otpHash && !user.otpExpires) {
+        // proceed
+      } else {
+        return NextResponse.json({ error: "Email not verified. Please register again to receive a new code." }, { status: 403 });
+      }
     }
     const ok = await verifyPassword(password, user.passwordHash);
     if (!ok) {
