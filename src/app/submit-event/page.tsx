@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useMemo, useState, useEffect } from "react";
 
 export default function SubmitEventPage() {
   const [title, setTitle] = useState("");
@@ -86,7 +85,7 @@ export default function SubmitEventPage() {
                   <p className="text-xs opacity-70">Provide the core information for your event. Fields marked with * are required.</p>
                   {!session?.authenticated && (
                     <div className="mt-2 rounded border border-yellow-300 bg-yellow-50 text-yellow-700 px-3 py-2 text-xs">
-                      Please <Link href="/auth/login" className="underline">log in</Link> or <Link href="/auth/register" className="underline">register</Link> as a Studio Owner to submit events.
+                      Please <a href="/auth/login" className="underline">log in</a> or <a href="/auth/register" className="underline">register</a> as a Studio Owner to submit events.
                     </div>
                   )}
                   {session?.authenticated && session?.user?.role !== "STUDIO_OWNER" && (
@@ -164,7 +163,7 @@ export default function SubmitEventPage() {
                   <select
                     className="mt-1 w-full rounded border px-3 py-2"
                     value={style}
-                    onChange={(e) => setStyle(e.target.value as "Indian" | "Western")}
+                    onChange={(e) => setStyle(e.target.value as any)}
                   >
                     <option>Indian</option>
                     <option>Western</option>
@@ -222,9 +221,9 @@ export default function SubmitEventPage() {
                         <div className="font-semibold">{status}</div>
                         {createdId && (
                           <div className="text-xs mt-1">
-                            <Link href={`/events/${createdId}`} className="underline">View event</Link>
+                            <a href={`/events/${createdId}`} className="underline">View event</a>
                             <span className="mx-2 opacity-50">•</span>
-                            <Link href="/events" className="underline">Browse all events</Link>
+                            <a href="/events" className="underline">Browse all events</a>
                           </div>
                         )}
                       </div>
@@ -264,9 +263,9 @@ export default function SubmitEventPage() {
                   For best results, use an SVG image. If omitted, a placeholder is shown.
                 </div>
                 <div className="mt-4 flex items-center gap-3">
-                  <Link href="/events" className="text-xs underline">Explore events</Link>
+                  <a href="/events" className="text-xs underline">Explore events</a>
                   <span className="hidden sm:inline text-xs opacity-50">•</span>
-                  <Link href="/" className="text-xs underline">Home</Link>
+                  <a href="/" className="text-xs underline">Home</a>
                 </div>
               </div>
             </div>

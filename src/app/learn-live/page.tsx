@@ -1,7 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 
 export default function LearnLive() {
   const dances = [
@@ -83,8 +81,8 @@ export default function LearnLive() {
             Curious To Know Things Here It is.
           </h2>
           <p className="mt-3 text-sm sm:text-base md:text-lg" style={{ color: "#d35400" }}>
-            Don’t you feel that &quot;Dance&quot; is the language we can connect with anyone in this world,
-             no matter where they are from?
+            Don’t you feel that "Dance" is the language we can connect with anyone in this world,
+            no matter where they are from?
           </p>
         </div>
       </div>
@@ -119,11 +117,9 @@ export default function LearnLive() {
                 onClick={() => setModalDance(d)}
               >
                 <div className="rounded-md overflow-hidden border border-black">
-                  <Image
+                  <img
                     src={d.img}
                     alt={d.name}
-                    width={800}
-                    height={320}
                     className="w-full h-56 object-cover transition-transform duration-300 ease-out group-hover:scale-105"
                   />
                 </div>
@@ -161,7 +157,7 @@ export default function LearnLive() {
           <div className="relative z-10 max-w-2xl w-[92%] md:w-[80%] bg-white rounded-lg shadow-xl overflow-hidden">
             <div className="flex flex-col md:flex-row">
               <div className="md:w-1/2">
-                <Image src={modalDance.img} alt={modalDance.name} width={1200} height={512} className="w-full h-64 md:h-full object-cover" />
+                <img src={modalDance.img} alt={modalDance.name} className="w-full h-64 md:h-full object-cover" />
               </div>
               <div className="md:w-1/2 p-5">
                 <h3 className="text-xl font-semibold">{modalDance.name}</h3>
@@ -174,12 +170,12 @@ export default function LearnLive() {
                   >
                     Close
                   </button>
-                  <Link
+                  <a
                     href="/events"
                     className="px-4 py-2 rounded bg-black text-white border border-orange-500 hover:opacity-90"
                   >
                     Explore Classes
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>

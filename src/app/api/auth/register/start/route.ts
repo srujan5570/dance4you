@@ -1,4 +1,4 @@
-// src/app/api/auth/register/route.ts
+// src/app/api/auth/register/start/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
@@ -20,13 +20,17 @@ export async function POST(req: Request) {
     if (role !== "STUDENT" && role !== "STUDIO_OWNER") {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
+
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing && existing.emailVerified) {
       return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
+
     const passwordHash = await hashPassword(password);
+
+    // generate OTP
     const otp = generateOtp();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
 
     let userId: string;

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 
 type EventItem = {
   id: string;
@@ -11,6 +10,41 @@ type EventItem = {
   style: "Indian" | "Western";
   image: string; // public path to SVG
 };
+
+const EVENTS: EventItem[] = [
+  {
+    id: "e1",
+    title: "Bollywood Night",
+    city: "Hyderabad",
+    date: "2025-10-12",
+    style: "Indian",
+    image: "/dance-bharatanatyam.svg",
+  },
+  {
+    id: "e2",
+    title: "Hip Hop Jam",
+    city: "Bengaluru",
+    date: "2025-11-07",
+    style: "Western",
+    image: "/dance-hip-hop.svg",
+  },
+  {
+    id: "e3",
+    title: "Bhangra Fiesta",
+    city: "Delhi",
+    date: "2025-10-20",
+    style: "Indian",
+    image: "/dance-bhangra.svg",
+  },
+  {
+    id: "e4",
+    title: "House Groove",
+    city: "Mumbai",
+    date: "2025-12-02",
+    style: "Western",
+    image: "/dance-house.svg",
+  },
+];
 
 export default function EventsPage() {
   const [q, setQ] = useState("");
@@ -29,7 +63,7 @@ export default function EventsPage() {
         const res = await fetch("/api/events", { cache: "no-store" });
         const data = await res.json();
         setEvents(data || []);
-      } catch {
+      } catch (e) {
         setError("Failed to load events");
       } finally {
         setLoading(false);
@@ -84,7 +118,7 @@ export default function EventsPage() {
           />
           <select
             value={style}
-            onChange={(e) => setStyle(e.target.value as "All" | "Indian" | "Western")}
+            onChange={(e) => setStyle(e.target.value as any)}
             className="rounded border px-3 py-2"
           >
             <option>All</option>
@@ -105,7 +139,7 @@ export default function EventsPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {filtered.map((ev) => (
-              <Link key={ev.id} href={`/events/${ev.id}`} className="block rounded-lg overflow-hidden border bg-white">
+              <a key={ev.id} href={`/events/${ev.id}`} className="block rounded-lg overflow-hidden border bg-white">
                 <div
                   className="h-40"
                   style={{
@@ -124,7 +158,7 @@ export default function EventsPage() {
                     {ev.style}
                   </span>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         )}

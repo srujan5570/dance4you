@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const passwordHash = await hashPassword(newPassword);
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch {
+  } catch (e) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -34,7 +33,7 @@ export default function LoginPage() {
       setTimeout(() => {
         window.location.href = "/";
       }, 400);
-    } catch {
+    } catch (e) {
       setStatus("Network error");
     } finally {
       setSubmitting(false);
@@ -78,7 +77,7 @@ export default function LoginPage() {
           </button>
 
           <div className="text-xs opacity-70 text-center">
-            New here? <Link href="/auth/register" className="underline">Create an account</Link>
+            New here? <a href="/auth/register" className="underline">Create an account</a>
           </div>
         </form>
       </section>

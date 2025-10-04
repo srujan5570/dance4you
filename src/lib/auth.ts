@@ -61,7 +61,7 @@ export async function readSessionCookie(): Promise<{ userId: string; role: "STUD
 export function commitSessionCookie(res: Response, token: string, maxAgeSeconds?: number): void {
   // NextResponse provides cookies on the Response object in App Router
   // We will cast to any to access cookies in route handlers
-  const r = res as unknown as { cookies?: { set?: (name: string, value: string, opts: { httpOnly: boolean; sameSite: "lax"; path: string; secure: boolean; maxAge: number }) => void } };
+  const r = res as any;
   r.cookies?.set?.("session", token, {
     httpOnly: true,
     sameSite: "lax",
@@ -72,7 +72,7 @@ export function commitSessionCookie(res: Response, token: string, maxAgeSeconds?
 }
 
 export function clearSessionCookie(res: Response): void {
-  const r = res as unknown as { cookies?: { set?: (name: string, value: string, opts: { httpOnly: boolean; sameSite: "lax"; path: string; secure: boolean; maxAge: number }) => void } };
+  const r = res as any;
   r.cookies?.set?.("session", "", {
     httpOnly: true,
     sameSite: "lax",

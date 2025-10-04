@@ -38,7 +38,7 @@ export async function PATCH(req: Request) {
     }
     const updated = await prisma.user.update({ where: { id: session.userId }, data, select: { id: true, email: true, role: true, name: true } });
     return NextResponse.json(updated, { status: 200 });
-  } catch {
+  } catch (e) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 }

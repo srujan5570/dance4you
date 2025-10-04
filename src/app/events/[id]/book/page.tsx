@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 
 export default function BookEventPage() {
   const params = useParams();
@@ -39,7 +38,7 @@ export default function BookEventPage() {
           const data = await res.json();
           setEvent({ id: data.id, title: data.title, city: data.city, date: data.date, style: data.style, image: data.image });
         }
-      } catch {
+      } catch (e) {
         // ignore
       } finally {
         setLoadingEvent(false);
@@ -93,7 +92,7 @@ export default function BookEventPage() {
       setEmail("");
       setTickets(1);
       setNote("");
-    } catch {
+    } catch (e) {
       setStatus("Network error");
     } finally {
       setSubmitting(false);
@@ -146,9 +145,9 @@ export default function BookEventPage() {
                     <div className="font-medium">{event.style}</div>
                   </>
                 )}
-                <Link href={`/events/${eventId}`} className="block mt-4 text-xs underline">
+                <a href={`/events/${eventId}`} className="block mt-4 text-xs underline">
                   View event details
-                </Link>
+                </a>
               </div>
             </div>
             <div className="mt-6 rounded-xl border bg-white shadow-sm p-4">
@@ -174,7 +173,7 @@ export default function BookEventPage() {
                     <div className="text-sm mt-1">Reference: <span className="font-mono">{bookingRef}</span></div>
                     <div className="text-xs mt-2 opacity-80">We’ve sent a confirmation email. Keep the reference for any support.</div>
                     <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <Link href={`/events/${eventId}`} className="text-xs underline">View event details</Link>
+                      <a href={`/events/${eventId}`} className="text-xs underline">View event details</a>
                       <span className="hidden sm:inline text-xs opacity-50">•</span>
                       <a
                         className="text-xs underline"
@@ -192,7 +191,7 @@ export default function BookEventPage() {
               <h3 className="text-lg font-semibold">Secure your spot</h3>
               {!session?.authenticated && (
                 <div className="mt-3 rounded border border-yellow-300 bg-yellow-50 text-yellow-700 px-3 py-2 text-sm">
-                  Please <Link href="/auth/login" className="underline">log in</Link> or <Link href="/auth/register" className="underline">register</Link> to book.
+                  Please <a href="/auth/login" className="underline">log in</a> or <a href="/auth/register" className="underline">register</a> to book.
                 </div>
               )}
               <p className="text-xs opacity-70 mt-1">Fill in your details and confirm your booking.</p>
@@ -320,9 +319,9 @@ export default function BookEventPage() {
 
             {/* Secondary actions */}
             <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-              <Link href={`/events/${eventId}`} className="text-xs underline">Back to event</Link>
+              <a href={`/events/${eventId}`} className="text-xs underline">Back to event</a>
               <span className="hidden sm:inline text-xs opacity-50">•</span>
-              <Link href="/events" className="text-xs underline">Explore more events</Link>
+              <a href="/events" className="text-xs underline">Explore more events</a>
             </div>
           </div>
         </div>

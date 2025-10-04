@@ -5,6 +5,7 @@ import "./globals.css";
 import { Dancing_Script } from "next/font/google";
 import { readSessionCookie } from "../lib/auth";
 import Link from "next/link";
+import MobileNav from "../components/MobileNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,27 +76,7 @@ export default async function RootLayout({
                 <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-3.33 0-10 1.67-10 5v1h20v-1c0-3.33-6.67-5-10-5Z" />
               </svg>
               {/* Mobile menu */}
-              <details className="md:hidden relative">
-                <summary aria-label="Menu" className="p-2 border rounded-full list-none cursor-pointer">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-5 w-5"
-                    aria-hidden
-                  >
-                    <path d="M3 6h18v2H3Zm0 5h18v2H3Zm0 5h18v2H3Z" />
-                  </svg>
-                </summary>
-                <div className="absolute right-0 mt-2 w-48 rounded-md border bg-white shadow-lg p-3">
-                  <nav className="flex flex-col text-sm italic" style={{ color: "#167C36" }}>
-                    <Link href="/" className="py-1 hover:underline">Home</Link>
-                    <Link href="/learn-live" className="py-1 hover:underline">Learn &amp; Live</Link>
-                    <Link href="/events" className="py-1 hover:underline">Book Online</Link>
-                    <Link href="/submit-event" className="py-1 hover:underline">Submit Event</Link>
-                  </nav>
-                </div>
-              </details>
+              <MobileNav />
             </div>
           </div>
         </header>
