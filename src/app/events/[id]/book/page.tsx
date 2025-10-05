@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 
 export default function BookEventPage() {
   const params = useParams();
@@ -320,9 +319,9 @@ export default function BookEventPage() {
 
             {/* Secondary actions */}
             <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-              <Link href={`/events/${eventId}`} className="text-xs underline">Back to event</Link>
+              <a href={`/events/${eventId}`} className="text-xs underline">Back to event</a>
               <span className="hidden sm:inline text-xs opacity-50">•</span>
-              <Link href="/events" className="text-xs underline">Explore more events</Link>
+              <a href="/events" className="text-xs underline">Explore more events</a>
             </div>
           </div>
         </div>

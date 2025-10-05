@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Image from "next/image";
 import { headers } from "next/headers";
 
 export default async function Home() {
@@ -106,14 +106,14 @@ export default async function Home() {
               <div className="mt-3">
                 <div className="text-[#f97316] font-semibold">{s.name}</div>
                 <div className="text-sm opacity-80">{s.desc}</div>
-                <Link href={s.readMoreHref} className="text-xs mt-1 inline-block underline">
+                <a href={s.readMoreHref} className="text-xs mt-1 inline-block underline">
                   Read More
-                </Link>
-                <Link href={s.cta.href} className="inline-block mt-2">
+                </a>
+                <a href={s.cta.href} className="inline-block mt-2">
                   <button className="rounded bg-black text-white text-xs px-3 py-1 border border-[#f97316]">
                     {s.cta.label}
                   </button>
-                </Link>
+                </a>
               </div>
             </div>
           ))}
@@ -133,9 +133,9 @@ export default async function Home() {
                   <li key={ev.id} className="bg-black/20 rounded p-4">
                     <div className="text-sm font-semibold">{ev.title}</div>
                     <div className="text-xs opacity-80 mt-1">{ev.date}</div>
-                    <Link href={`/events/${ev.id}`} className="inline-block mt-3 text-xs underline">
+                    <a href={`/events/${ev.id}`} className="inline-block mt-3 text-xs underline">
                       Read More
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>

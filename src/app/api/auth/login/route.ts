@@ -14,21 +14,13 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
-    if (!user.emailVerified) {
-      // Allow legacy users (created before OTP rollout) who have no pending OTP to log in
-      if (!user.otpHash && !user.otpExpires) {
-        // proceed
-      } else {
-        return NextResponse.json({ error: "Email not verified. Please register again to receive a new code." }, { status: 403 });
-      }
-    }
     const ok = await verifyPassword(password, user.passwordHash);
     if (!ok) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
     // 30 days if remember me checked, else default 7 days
     const expSeconds = Math.floor(Date.now() / 1000) + (remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7);
-    const token = signToken({ userId: user.id, role: user.role as "STUDENT" | "STUDIO_OWNER", exp: expSeconds });
+    const token = signToken({ userId: user.id, role: user.role as any, exp: expSeconds });
     const res = NextResponse.json({ id: user.id, email: user.email, role: user.role, name: user.name }, { status: 200 });
     commitSessionCookie(res, token, remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7);
     return res;

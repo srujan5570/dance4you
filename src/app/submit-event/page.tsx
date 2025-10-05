@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import Link from "next/link";
+import dynamic from "next/dynamic";
+// removed leaflet/react-leaflet imports to avoid SSR issues; MapPicker loads them client-side
 
 export default function SubmitEventPage() {
   const [title, setTitle] = useState("");
@@ -10,6 +11,63 @@ export default function SubmitEventPage() {
   const [style, setStyle] = useState<"Indian" | "Western">("Indian");
   const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
+  // Contact fields (collected but not publicly shown)
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [venueAddress, setVenueAddress] = useState("");
+  const [venueMapUrl, setVenueMapUrl] = useState("");
+  const [contactNotes, setContactNotes] = useState("");
+  // Precise location coordinates (optional)
+  const [locationLat, setLocationLat] = useState<string>("");
+  const [locationLng, setLocationLng] = useState<string>("");
+  // Client-only map state
+  const [isClient, setIsClient] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]);
+  useEffect(() => {
+    setIsClient(true);
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setMapCenter([pos.coords.latitude, pos.coords.longitude]),
+        () => {}
+      );
+    }
+  }, []);
+  useEffect(() => {
+    const lat = parseFloat(locationLat);
+    const lng = parseFloat(locationLng);
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+      setMapCenter([lat, lng]);
+    }
+  }, [locationLat, locationLng]);
+
+  // Dynamically import client-only MapPicker (react-leaflet)
+  const MapPicker = dynamic(() => import("@/components/MapPicker"), { ssr: false });
+
+  // Search & pin state (Nominatim)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ display_name: string; lat: string; lon: string }[]>([]);
+  const [searching, setSearching] = useState(false);
+  async function searchPlaces() {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    try {
+      setSearching(true);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=8`,
+        { headers: { Accept: "application/json" } }
+      );
+      const data = await res.json();
+      setSearchResults(Array.isArray(data) ? data.slice(0, 8) : []);
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  // Map click handled within MapPicker component
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
@@ -29,7 +87,22 @@ export default function SubmitEventPage() {
   const validCity = useMemo(() => city.trim().length >= 2, [city]);
   const validDate = useMemo(() => !!date, [date]);
   const validStyle = useMemo(() => style === "Indian" || style === "Western", [style]);
-  const canSubmit = useMemo(() => validTitle && validCity && validDate && validStyle && session?.authenticated && session?.user?.role === "STUDIO_OWNER", [validTitle, validCity, validDate, validStyle, session?.authenticated, session?.user?.role]);
+  const validCoords = useMemo(() => {
+    const latNum = parseFloat(locationLat);
+    const lngNum = parseFloat(locationLng);
+    return !Number.isNaN(latNum) && !Number.isNaN(lngNum);
+  }, [locationLat, locationLng]);
+  const canSubmit = useMemo(
+    () =>
+      validTitle &&
+      validCity &&
+      validDate &&
+      validStyle &&
+      validCoords &&
+      session?.authenticated &&
+      session?.user?.role === "STUDIO_OWNER",
+    [validTitle, validCity, validDate, validStyle, validCoords, session?.authenticated, session?.user?.role]
+  );
 
   async function submit() {
     setStatus(null);
@@ -39,7 +112,21 @@ export default function SubmitEventPage() {
       const res = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, city, date, style, image, description }),
+        body: JSON.stringify({
+          title,
+          city,
+          date,
+          style,
+          image,
+          description,
+          contactPhone,
+          contactEmail,
+          venueAddress,
+          venueMapUrl,
+          contactNotes,
+          locationLat: parseFloat(locationLat),
+          locationLng: parseFloat(locationLng),
+        }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Failed to submit" }));
@@ -55,6 +142,13 @@ export default function SubmitEventPage() {
       setStyle("Indian");
       setImage("");
       setDescription("");
+      setContactPhone("");
+      setContactEmail("");
+      setVenueAddress("");
+      setVenueMapUrl("");
+      setContactNotes("");
+      setLocationLat("");
+      setLocationLng("");
     } catch {
       setStatus("Failed to submit");
     } finally {
@@ -164,7 +258,7 @@ export default function SubmitEventPage() {
                   <select
                     className="mt-1 w-full rounded border px-3 py-2"
                     value={style}
-                    onChange={(e) => setStyle(e.target.value as "Indian" | "Western")}
+                    onChange={(e) => setStyle(e.target.value as any)}
                   >
                     <option>Indian</option>
                     <option>Western</option>
@@ -201,6 +295,93 @@ export default function SubmitEventPage() {
                   />
                 </div>
 
+                {/* Location coordinates */}
+                <div>
+                  <label className="text-xs opacity-70 flex items-center gap-1" title="Precise latitude and longitude (required)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path d="M10 2a6 6 0 00-6 6c0 4.418 6 10 6 10s6-5.582 6-10a6 6 0 00-6-6zm0 8a2 2 0 110-4 2 2 0 010 4z" /></svg>
+                    Precise map location*
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input
+                      className={`mt-1 w-full rounded border px-3 py-2 ${!validCoords ? "border-red-400" : ""}`}
+                      placeholder="Latitude (e.g., 17.3850)"
+                      value={locationLat}
+                      onChange={(e) => setLocationLat(e.target.value)}
+                      inputMode="decimal"
+                      aria-invalid={!validCoords}
+                    />
+                    <input
+                      className={`mt-1 w-full rounded border px-3 py-2 ${!validCoords ? "border-red-400" : ""}`}
+                      placeholder="Longitude (e.g., 78.4867)"
+                      value={locationLng}
+                      onChange={(e) => setLocationLng(e.target.value)}
+                      inputMode="decimal"
+                      aria-invalid={!validCoords}
+                    />
+                  </div>
+                  {!validCoords && (
+                    <div className="text-[11px] text-red-600 mt-1 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 012 0v4a1 1 0 11-2 0V7zm2 6a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd" /></svg>
+                      Please pick a location on the map or enter valid latitude and longitude.
+                    </div>
+                  )}
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-6 gap-2">
+                    <input
+                      className="sm:col-span-4 rounded border px-3 py-2"
+                      placeholder="Search place or address (e.g., Charminar Hyderabad)"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchPlaces(); } }}
+                    />
+                    <button
+                      className="sm:col-span-2 rounded bg-[#f97316] text-white py-2 text-sm disabled:opacity-60"
+                      type="button"
+                      onClick={searchPlaces}
+                      disabled={searching}
+                    >
+                      {searching ? "Searching…" : "Search & Pin"}
+                    </button>
+                  </div>
+                  {searchResults.length > 0 && (
+                    <div className="mt-2 rounded border bg-white text-sm">
+                      {searchResults.map((r, idx) => (
+                        <button
+                          key={`${r.lat}-${r.lon}-${idx}`}
+                          type="button"
+                          className="block w-full text-left px-3 py-2 hover:bg-[#fff7ed]"
+                          onClick={() => {
+                            setLocationLat(r.lat);
+                            setLocationLng(r.lon);
+                            const latNum = parseFloat(r.lat);
+                            const lonNum = parseFloat(r.lon);
+                            if (!Number.isNaN(latNum) && !Number.isNaN(lonNum)) {
+                              setMapCenter([latNum, lonNum]);
+                            }
+                            setSearchResults([]);
+                          }}
+                        >
+                          {r.display_name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="text-[11px] opacity-70 mt-1">Tap on the map to set precise coordinates, search to pin a location, or paste coordinates from a map app.</div>
+                  {isClient && (
+                    <div className="mt-2 h-64 w-full rounded overflow-hidden border">
+                      <MapPicker
+                        center={mapCenter}
+                        lat={!Number.isNaN(parseFloat(locationLat)) ? parseFloat(locationLat) : null}
+                        lng={!Number.isNaN(parseFloat(locationLng)) ? parseFloat(locationLng) : null}
+                        onPick={(lat, lng) => {
+                          setLocationLat(String(lat));
+                          setLocationLng(String(lng));
+                          setMapCenter([lat, lng]);
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 {/* Submit */}
                 <button
                   className="mt-2 w-full rounded bg-[#f97316] text-white py-2 font-medium disabled:opacity-60"
@@ -222,9 +403,9 @@ export default function SubmitEventPage() {
                         <div className="font-semibold">{status}</div>
                         {createdId && (
                           <div className="text-xs mt-1">
-                            <Link href={`/events/${createdId}`} className="underline">View event</Link>
+                            <a href={`/events/${createdId}`} className="underline">View event</a>
                             <span className="mx-2 opacity-50">•</span>
-                            <Link href="/events" className="underline">Browse all events</Link>
+                            <a href="/events" className="underline">Browse all events</a>
                           </div>
                         )}
                       </div>
@@ -235,42 +416,42 @@ export default function SubmitEventPage() {
                 <div className="text-[11px] opacity-70 mt-3 text-center">By submitting, you agree to our terms and policies.</div>
               </div>
             </div>
-          </div>
 
-          {/* Preview card */}
-          <aside className="md:col-span-1">
-            <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-              <div
-                className="h-40 w-full"
-                style={{
-                  backgroundImage: `url(${previewImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-                aria-label={title || "Event image"}
-              />
-              <div className="p-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-sm">Preview</h4>
-                  <span className="text-[11px] opacity-70">Live</span>
-                </div>
-                <div className="mt-2 text-sm font-medium">{title || "Event title"}</div>
-                <div className="text-xs opacity-70">{city || "City"}</div>
-                <div className="text-xs opacity-70">{date || "Date"}</div>
-                <span className="inline-block mt-2 text-xs px-2 py-1 rounded bg-[#fff2e5] text-[#d35400]">{style}</span>
-                <div className="mt-3 text-xs opacity-70">{description || "Description will appear here."}</div>
-                <div className="mt-4 rounded bg-[#fff7ed] text-[#9a3412] px-3 py-2 text-xs">
-                  For best results, use an SVG image. If omitted, a placeholder is shown.
-                </div>
-                <div className="mt-4 flex items-center gap-3">
-                  <Link href="/events" className="text-xs underline">Explore events</Link>
-                  <span className="hidden sm:inline text-xs opacity-50">•</span>
-                  <Link href="/" className="text-xs underline">Home</Link>
+            {/* Preview card */}
+            <aside className="md:col-span-1">
+              <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+                <div
+                  className="h-40 w-full"
+                  style={{
+                    backgroundImage: `url(${previewImage})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                  }}
+                  aria-label={title || "Event image"}
+                />
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-sm">Preview</h4>
+                    <span className="text-[11px] opacity-70">Live</span>
+                  </div>
+                  <div className="mt-2 text-sm font-medium">{title || "Event title"}</div>
+                  <div className="text-xs opacity-70">{city || "City"}</div>
+                  <div className="text-xs opacity-70">{date || "Date"}</div>
+                  <span className="inline-block mt-2 text-xs px-2 py-1 rounded bg-[#fff2e5] text-[#d35400]">{style}</span>
+                  <div className="mt-3 text-xs opacity-70">{description || "Description will appear here."}</div>
+                  <div className="mt-4 rounded bg-[#fff7ed] text-[#9a3412] px-3 py-2 text-xs">
+                    For best results, use an SVG image. If omitted, a placeholder is shown.
+                  </div>
+                  <div className="mt-4 flex items-center gap-3">
+                    <a href="/events" className="text-xs underline">Explore events</a>
+                    <span className="hidden sm:inline text-xs opacity-50">•</span>
+                    <a href="/" className="text-xs underline">Home</a>
+                  </div>
                 </div>
               </div>
-            </div>
-          </aside>
+            </aside>
+          </div>
         </div>
       </section>
     </main>

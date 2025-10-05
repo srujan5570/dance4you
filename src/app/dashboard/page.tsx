@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 
 export default function DashboardPage() {
   const [session, setSession] = useState<{ authenticated: boolean; user?: { id?: string; email?: string; name?: string; role?: string } } | null>(null);
@@ -199,9 +198,9 @@ export default function DashboardPage() {
               )}
               {isAuthed && (
                 <div className="mt-4 flex flex-wrap gap-3 text-xs">
-                  <Link href="/submit-event" className="underline">Submit an event</Link>
-                  <Link href="/events" className="underline">Browse events</Link>
-                  <Link href="/" className="underline">Home</Link>
+                  <a href="/submit-event" className="underline">Submit an event</a>
+                  <a href="/events" className="underline">Browse events</a>
+                  <a href="/" className="underline">Home</a>
                   <button onClick={handleLogout} className="ml-auto bg-black text-white px-3 py-1 rounded hover:opacity-90">Log out</button>
                 </div>
               )}

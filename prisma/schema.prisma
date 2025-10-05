@@ -1,16 +1,62 @@
-// prisma/schema.prisma
-// Use PostgreSQL for production (Vercel). For local dev, set DATABASE_URL to a local Postgres or hosted Postgres.
+generator client {
+  provider = "prisma-client-js"
+}
 
-// Specify database
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-// Generate Prisma Client
-generator client {
-  provider = "prisma-client-js"
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String
+  role          Role      @default(STUDENT)
+  createdAt     DateTime  @default(now())
+  emailVerified Boolean   @default(false)
+  otpExpires    DateTime?
+  otpHash       String?
+  bookings      Booking[]
+  events        Event[]
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  city        String
+  date        String
+  style       String
+  image       String
+  description String?
+  // Contact fields (visible only to booked customers in UI)
+  contactPhone String?
+  contactEmail String?
+  venueAddress String?
+  venueMapUrl  String?
+  contactNotes String?
+  // Precise map coordinates
+  locationLat  Float?
+  locationLng  Float?
+  createdAt   DateTime  @default(now())
+  ownerId     String?
+  bookings    Booking[]
+  owner       User?     @relation(fields: [ownerId], references: [id])
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  eventId   String
+  name      String
+  email     String
+  tickets   Int           @default(1)
+  note      String?
+  createdAt DateTime      @default(now())
+  status    BookingStatus @default(ACTIVE)
+  userId    String?
+  event     Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User?         @relation(fields: [userId], references: [id])
 }
 
 enum Role {
@@ -18,58 +64,7 @@ enum Role {
   STUDIO_OWNER
 }
 
-// Add booking status enum
 enum BookingStatus {
   ACTIVE
   CANCELLED
-}
-
-model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String?
-  passwordHash String
-  role         Role     @default(STUDENT)
-  createdAt    DateTime @default(now())
-
-  // Email verification
-  emailVerified Boolean   @default(false)
-  otpHash       String?
-  otpExpires    DateTime?
-
-  // Relations
-  bookings     Booking[]
-  events       Event[]
-}
-
-model Event {
-  id          String   @id @default(cuid())
-  title       String
-  city        String
-  date        String   // store ISO yyyy-mm-dd for simplicity
-  style       String   // "Indian" | "Western"
-  image       String
-  description String?
-  createdAt   DateTime @default(now())
-  ownerId     String?
-
-  // Relations
-  bookings    Booking[]
-  owner       User?    @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-}
-
-model Booking {
-  id        String   @id @default(cuid())
-  eventId   String
-  name      String
-  email     String
-  tickets   Int      @default(1)
-  note      String?
-  createdAt DateTime @default(now())
-  status    BookingStatus @default(ACTIVE)
-
-  // Relations
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

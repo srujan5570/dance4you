@@ -1,7 +1,6 @@
 // src/lib/auth.ts
 import { cookies } from "next/headers";
 import crypto from "node:crypto";
-import type { NextResponse } from "next/server";
 
 const SECRET = process.env.JWT_SECRET || "dev-secret";
 
@@ -59,9 +58,11 @@ export async function readSessionCookie(): Promise<{ userId: string; role: "STUD
   return verifyToken(token);
 }
 
-// Route handlers use NextResponse; access its cookies API directly
-export function commitSessionCookie(res: NextResponse, token: string, maxAgeSeconds?: number): void {
-  res.cookies.set("session", token, {
+export function commitSessionCookie(res: Response, token: string, maxAgeSeconds?: number): void {
+  // NextResponse provides cookies on the Response object in App Router
+  // We will cast to any to access cookies in route handlers
+  const r = res as any;
+  r.cookies?.set?.("session", token, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
@@ -70,8 +71,9 @@ export function commitSessionCookie(res: NextResponse, token: string, maxAgeSeco
   });
 }
 
-export function clearSessionCookie(res: NextResponse): void {
-  res.cookies.set("session", "", {
+export function clearSessionCookie(res: Response): void {
+  const r = res as any;
+  r.cookies?.set?.("session", "", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",

@@ -6,7 +6,6 @@ import { Dancing_Script } from "next/font/google";
 import { readSessionCookie } from "../lib/auth";
 import Link from "next/link";
 import MobileNav from "../components/MobileNav";
-import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,7 +43,7 @@ export default async function RootLayout({
           <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link href="/" className="flex items-center gap-3">
-                <Image src="/logo-dance.svg" alt="Dance 4 You" width={40} height={40} className="h-10 w-10" />
+                <img src="/logo-dance.svg" alt="Dance 4 You" className="h-10 w-10" />
                 <span
                   className="text-2xl font-bold italic"
                   style={{ fontFamily: "var(--font-dance-script)", color: "#f97316" }}
@@ -82,6 +81,25 @@ export default async function RootLayout({
           </div>
         </header>
         {children}
+        <footer className="mt-12 border-t bg-[#fffdf7]">
+          <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+            <div>
+              <div className="font-semibold">Contact Us</div>
+              <div className="mt-2">Email: <a href="mailto:itsforyou.dance4you@gmail.com" className="underline text-[#167C36]">itsforyou.dance4you@gmail.com</a></div>
+              <div className="mt-1">Phone: <span className="opacity-80">+91 6302 476 414</span></div>
+            </div>
+            <div>
+              <div className="font-semibold">Location</div>
+              <div className="mt-2 opacity-80">Hyderabad, Telangana, India</div>
+              <a href="https://maps.google.com/?q=Hyderabad" target="_blank" rel="noopener noreferrer" className="underline text-[#167C36] mt-1 inline-block">View on Map</a>
+            </div>
+            <div>
+              <div className="font-semibold">Support</div>
+              <p className="mt-2 opacity-80">For booking support or event inquiries, reach out via email.</p>
+            </div>
+          </div>
+          <div className="text-center text-xs opacity-70 pb-6">© {new Date().getFullYear()} Dance 4 You. All rights reserved.</div>
+        </footer>
       </body>
     </html>
   );
