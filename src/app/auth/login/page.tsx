@@ -9,6 +9,8 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(true);
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Role selection: STUDENT (Dancer) or STUDIO_OWNER (Studio)
+  const [role, setRole] = useState<"STUDENT" | "STUDIO_OWNER">("STUDENT");
 
   const validEmail = useMemo(() => /.+@.+\..+/.test(email.trim()), [email]);
   const validPassword = useMemo(() => password.length >= 6, [password]);
@@ -23,7 +25,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, remember }),
+        body: JSON.stringify({ email, password, remember, role }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -32,7 +34,12 @@ export default function LoginPage() {
       }
       setStatus("Logged in. Redirecting…");
       setTimeout(() => {
-        window.location.href = "/";
+        // Redirect depending on actual account role
+        if (data.role === "STUDIO_OWNER") {
+          window.location.href = "/submit-event";
+        } else {
+          window.location.href = "/events";
+        }
       }, 400);
     } catch  {
       setStatus("Network error");
@@ -58,6 +65,32 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* Role selection */}
+          <fieldset>
+            <legend className="text-xs opacity-70">Login as</legend>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRole("STUDENT")}
+                className={`rounded border px-3 py-2 text-left ${role === "STUDENT" ? "border-[#f97316] bg-[#fff7ed]" : ""}`}
+                aria-pressed={role === "STUDENT"}
+              >
+                <div className="font-medium">Dancer</div>
+                <div className="text-xs opacity-70">Book events, view tickets</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("STUDIO_OWNER")}
+                className={`rounded border px-3 py-2 text-left ${role === "STUDIO_OWNER" ? "border-[#f97316] bg-[#fff7ed]" : ""}`}
+                aria-pressed={role === "STUDIO_OWNER"}
+              >
+                <div className="font-medium">Studio Owner</div>
+                <div className="text-xs opacity-70">Manage and post events</div>
+              </button>
+            </div>
+            <p className="mt-2 text-[12px] opacity-70">Choose the option that matches your account type. We&apos;ll verify this during login.</p>
+          </fieldset>
+
           <div>
             <label className="text-xs opacity-70" htmlFor="email">Email*</label>
             <input id="email" className={`mt-1 w-full rounded border px-3 py-2 ${email && !validEmail ? "border-red-400" : ""}`} placeholder="you@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -74,7 +107,7 @@ export default function LoginPage() {
           </div>
 
           <button className="mt-2 w-full rounded bg-[#f97316] text-white py-2 font-medium disabled:opacity-60" disabled={submitting || !canSubmit} type="submit">
-            {submitting ? "Logging in…" : "Log in"}
+            {submitting ? "Logging in…" : `Log in as ${role === "STUDENT" ? "Dancer" : "Studio Owner"}`}
           </button>
 
           <div className="text-xs opacity-70 text-center">

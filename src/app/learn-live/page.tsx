@@ -180,10 +180,8 @@ export default function LearnLive() {
                   >
                     Close
                   </button>
-                  <Link href="/events" passHref>
-                    <a className="px-4 py-2 rounded bg-black text-white border border-orange-500 hover:opacity-90">
-                      Explore Classes
-                    </a>
+                  <Link href="/events" className="px-4 py-2 rounded bg-black text-white border border-orange-500 hover:opacity-90">
+                    Explore Classes
                   </Link>
                 </div>
               </div>

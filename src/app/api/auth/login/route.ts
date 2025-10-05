@@ -5,7 +5,7 @@ import { verifyPassword, signToken, commitSessionCookie } from "@/lib/auth";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password, remember } = body || {};
+    const { email, password, remember, role } = body || {};
     if (!email || !password) {
       return NextResponse.json({ error: "Missing required fields: email, password" }, { status: 400 });
     }
@@ -16,6 +16,12 @@ export async function POST(req: Request) {
     const ok = await verifyPassword(password, user.passwordHash);
     if (!ok) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+    // If the client selected a role to log in as, ensure it matches the account role
+    if (role && role !== user.role) {
+      const want = role === "STUDIO_OWNER" ? "Studio Owner" : "Dancer";
+      const have = user.role === "STUDIO_OWNER" ? "Studio Owner" : "Dancer";
+      return NextResponse.json({ error: `Role mismatch: You selected \"${want}\" but your account is \"${have}\".` }, { status: 401 });
     }
     // 30 days if remember me checked, else default 7 days
     const expSeconds = Math.floor(Date.now() / 1000) + (remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7);

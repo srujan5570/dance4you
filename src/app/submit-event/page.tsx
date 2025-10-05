@@ -78,7 +78,8 @@ export default function SubmitEventPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
-  const [session, setSession] = useState<{ authenticated: boolean; user?: { role?: string } } | null>(null);
+  const [session, setSession] = useState<{ authenticated: boolean; user?: { role?: string; id?: string } } | null>(null);
+  const [studioProfile, setStudioProfile] = useState<{ name?: string } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -86,6 +87,17 @@ export default function SubmitEventPage() {
         const res = await fetch("/api/session", { cache: "no-store" });
         const data = await res.json();
         setSession(data);
+        if (data?.authenticated && data?.user?.role === "STUDIO_OWNER") {
+          const sp = await fetch("/api/studio-profile", { cache: "no-store" });
+          if (sp.ok) {
+            const profile = await sp.json();
+            setStudioProfile(profile);
+          } else {
+            setStudioProfile(null);
+          }
+        } else {
+          setStudioProfile(null);
+        }
       } catch {}
     })();
   }, []);
@@ -107,8 +119,9 @@ export default function SubmitEventPage() {
       validStyle &&
       validCoords &&
       session?.authenticated &&
-      session?.user?.role === "STUDIO_OWNER",
-    [validTitle, validCity, validDate, validStyle, validCoords, session?.authenticated, session?.user?.role]
+      session?.user?.role === "STUDIO_OWNER" &&
+      !!studioProfile,
+    [validTitle, validCity, validDate, validStyle, validCoords, session?.authenticated, session?.user?.role, studioProfile]
   );
 
   async function submit() {
@@ -194,6 +207,11 @@ export default function SubmitEventPage() {
                   {session?.authenticated && session?.user?.role !== "STUDIO_OWNER" && (
                     <div className="mt-2 rounded border border-red-300 bg-red-50 text-red-700 px-3 py-2 text-xs">
                       You must be a Studio Owner to submit events. Current role: {session?.user?.role || "Unknown"}.
+                    </div>
+                  )}
+                 {session?.authenticated && session?.user?.role === "STUDIO_OWNER" && !studioProfile && (
+                    <div className="mt-2 rounded border border-blue-300 bg-blue-50 text-blue-700 px-3 py-2 text-xs">
+                      Studio profile required. Please <Link href="/studio/setup" className="underline">complete your studio details</Link> before listing events.
                     </div>
                   )}
                 </div>

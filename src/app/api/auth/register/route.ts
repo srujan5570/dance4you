@@ -1,30 +1,32 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword, signToken, commitSessionCookie } from "@/lib/auth";
+import { signToken, commitSessionCookie, hashPassword } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password, remember } = body || {};
-    if (!email || !password) {
-      return NextResponse.json({ error: "Missing required fields: email, password" }, { status: 400 });
+    const { name, email, password, role } = body || {};
+    if (!email || !password || !role) {
+      return NextResponse.json({ error: "Missing required fields: email, password, role" }, { status: 400 });
     }
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    if (typeof password !== "string" || password.length < 6) {
+      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
     }
-    const ok = await verifyPassword(password, user.passwordHash);
-    if (!ok) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    if (role !== "STUDENT" && role !== "STUDIO_OWNER") {
+      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
-    // 30 days if remember me checked, else default 7 days
-    const expSeconds = Math.floor(Date.now() / 1000) + (remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7);
-    const token = signToken({ userId: user.id, role: user.role, exp: expSeconds });
-    const res = NextResponse.json(
-      { id: user.id, email: user.email, role: user.role, name: user.name },
-      { status: 200 }
-    );
-    commitSessionCookie(res, token, remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7);
+    const exists = await prisma.user.findUnique({ where: { email } });
+    if (exists) {
+      return NextResponse.json({ error: "Email already registered" }, { status: 400 });
+    }
+    const passwordHash = await hashPassword(password);
+    const created = await prisma.user.create({
+      data: { email, passwordHash, role, name: typeof name === "string" ? name : undefined },
+      select: { id: true, email: true, role: true, name: true },
+    });
+    const token = signToken({ userId: created.id, role: created.role });
+    const res = NextResponse.json(created, { status: 201 });
+    commitSessionCookie(res, token);
     return res;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });

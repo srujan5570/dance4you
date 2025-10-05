@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <circle cx="24" cy="24" r="22" fill="#f7a34b" stroke="#333" stroke-width="2" />
+  <path d="M20 28c4-3 6-6 9-12l3 2c-2 6-5 10-10 14l-2-4z" fill="#333" />
+  <text x="24" y="42" text-anchor="middle" font-size="8" font-family="Arial" fill="#333">D4Y</text>
+</svg>

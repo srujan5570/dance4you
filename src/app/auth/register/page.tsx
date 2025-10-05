@@ -35,7 +35,7 @@ export default function RegisterPage() {
       // Redirect depending on role
       setTimeout(() => {
         if (role === "STUDIO_OWNER") {
-          window.location.href = "/submit-event";
+          window.location.href = "/studio/setup";
         } else {
           window.location.href = "/events";
         }
@@ -52,7 +52,7 @@ export default function RegisterPage() {
       <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
         <div className="max-w-4xl mx-auto px-6 py-6 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-wide">Create your account</h2>
-          <p className="mt-1 text-sm sm:text-base opacity-95">Register as Student or Studio Owner</p>
+          <p className="mt-1 text-sm sm:text-base opacity-95">Register as Dancer or Studio Owner</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ export default function RegisterPage() {
             <div className="mt-2 flex items-center gap-4">
               <label className="inline-flex items-center gap-2">
                 <input type="radio" name="role" value="STUDENT" checked={role === "STUDENT"} onChange={() => setRole("STUDENT")} />
-                <span className="text-sm">Student</span>
+                <span className="text-sm">Dancer</span>
               </label>
               <label className="inline-flex items-center gap-2">
                 <input type="radio" name="role" value="STUDIO_OWNER" checked={role === "STUDIO_OWNER"} onChange={() => setRole("STUDIO_OWNER")} />
@@ -94,7 +94,7 @@ export default function RegisterPage() {
           </fieldset>
 
           <button className="mt-2 w-full rounded bg-[#f97316] text-white py-2 font-medium disabled:opacity-60" disabled={submitting || !canSubmit} type="submit">
-            {submitting ? "Registering…" : "Register"}
+            {submitting ? "Registering…" : `Register as ${role === "STUDENT" ? "Dancer" : "Studio Owner"}`}
           </button>
 
           <div className="text-xs opacity-70 text-center">

@@ -31,6 +31,11 @@ export async function POST(req: Request) {
     if (!session || session.role !== "STUDIO_OWNER") {
       return NextResponse.json({ error: "Forbidden: Studio owner required" }, { status: 403 });
     }
+    // Enforce studio setup completion before allowing event creation
+    const studio = await prisma.studioProfile.findUnique({ where: { ownerId: session.userId } });
+    if (!studio) {
+      return NextResponse.json({ error: "Studio setup required: Please complete your studio profile before listing events." }, { status: 403 });
+    }
     const body = await req.json();
     const {
       title,

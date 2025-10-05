@@ -20,6 +20,7 @@ model User {
   otpHash       String?
   bookings      Booking[]
   events        Event[]
+  studioProfile StudioProfile?
 }
 
 model Event {
@@ -67,4 +68,25 @@ enum Role {
 enum BookingStatus {
   ACTIVE
   CANCELLED
+}
+
+model StudioProfile {
+  id           String   @id @default(cuid())
+  ownerId      String   @unique
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name         String
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  country      String?
+  postalCode   String?
+  phone        String?
+  email        String?
+  website      String?
+  description  String?
+  locationLat  Float
+  locationLng  Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
