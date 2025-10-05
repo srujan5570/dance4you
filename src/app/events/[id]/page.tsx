@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import EventMap from "@/components/EventMap";
@@ -65,11 +66,11 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
             <div className="font-medium">{event.date}</div>
             <div className="mt-3 text-sm opacity-80">Style</div>
             <div className="font-medium">{event.style}</div>
-            <a href={`/events/${event.id}/book`} className="block mt-4">
+            <Link href={`/events/${event.id}/book`} className="block mt-4">
               <button className="w-full rounded bg-[#f97316] text-white py-2 font-medium">
                 Book Now
               </button>
-            </a>
+            </Link>
           </div>
 
           {/* Contact details (visible after booking or for owner) */}
@@ -127,7 +128,7 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
                 )}
               </div>
             ) : (
-              <p className="mt-2 text-xs opacity-70">Book this event to view the organizer's contact details and venue information.</p>
+              <p className="mt-2 text-xs opacity-70">Book this event to view the organizer&apos;s contact details and venue information.</p>
             )}
           </div>
         </aside>

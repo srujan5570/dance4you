@@ -6,6 +6,7 @@ import { Dancing_Script } from "next/font/google";
 import { readSessionCookie } from "../lib/auth";
 import Link from "next/link";
 import MobileNav from "../components/MobileNav";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +44,7 @@ export default async function RootLayout({
           <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link href="/" className="flex items-center gap-3">
-                <img src="/logo-dance.svg" alt="Dance 4 You" className="h-10 w-10" />
+                <Image src="/logo-dance.svg" alt="Dance 4 You" width={40} height={40} priority />
                 <span
                   className="text-2xl font-bold italic"
                   style={{ fontFamily: "var(--font-dance-script)", color: "#f97316" }}

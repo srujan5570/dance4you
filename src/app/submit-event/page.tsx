@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 // removed leaflet/react-leaflet imports to avoid SSR issues; MapPicker loads them client-side
 
 export default function SubmitEventPage() {
@@ -27,7 +28,13 @@ export default function SubmitEventPage() {
     setIsClient(true);
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setMapCenter([pos.coords.latitude, pos.coords.longitude]),
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setMapCenter([lat, lng]);
+          setLocationLat(String(lat));
+          setLocationLng(String(lng));
+        },
         () => {}
       );
     }
@@ -170,7 +177,7 @@ export default function SubmitEventPage() {
 
       {/* Content */}
       <section className="max-w-6xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {/* Form card */}
           <div className="md:col-span-2">
             <div className="md:flex md:flex-row md:items-start md:gap-6">
@@ -181,7 +188,7 @@ export default function SubmitEventPage() {
                   <p className="text-xs opacity-70">Provide the core information for your event. Fields marked with * are required.</p>
                   {!session?.authenticated && (
                     <div className="mt-2 rounded border border-yellow-300 bg-yellow-50 text-yellow-700 px-3 py-2 text-xs">
-                      Please <a href="/auth/login" className="underline">log in</a> or <a href="/auth/register" className="underline">register</a> as a Studio Owner to submit events.
+                      Please <Link href="/auth/login" className="underline">log in</Link> or <Link href="/auth/register" className="underline">register</Link> as a Studio Owner to submit events.
                     </div>
                   )}
                   {session?.authenticated && session?.user?.role !== "STUDIO_OWNER" && (
@@ -259,7 +266,12 @@ export default function SubmitEventPage() {
                   <select
                     className="mt-1 w-full rounded border px-3 py-2"
                     value={style}
-                    onChange={(e) => setStyle(e.target.value as any)}
+                    onChange={(e) => {
+                      const val = e.currentTarget.value;
+                      if (val === "Indian" || val === "Western") {
+                        setStyle(val);
+                      }
+                    }}
                   >
                     <option>Indian</option>
                     <option>Western</option>
@@ -278,7 +290,7 @@ export default function SubmitEventPage() {
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
                   />
-                  <div className="text-[11px] opacity-70 mt-1">If omitted, we’ll use a placeholder.</div>
+                  <div className="text-[11px] opacity-70 mt-1">If omitted, we&apos;ll use a placeholder.</div>
                 </div>
 
                 {/* Description */}
@@ -322,7 +334,7 @@ export default function SubmitEventPage() {
                   </div>
                   {!validCoords && (
                     <div className="text-[11px] text-red-600 mt-1 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 012 0v4a1 1 0 11-2 0V7zm2 6a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 012 0v4a1 1 0 11-2 0V7zm2 6a1 1 0 10-2 0 1 1 0 002 0z" clipRule="evenodd" /></svg>
                       Please pick a location on the map or enter valid latitude and longitude.
                     </div>
                   )}
@@ -368,7 +380,7 @@ export default function SubmitEventPage() {
                   )}
                   <div className="text-[11px] opacity-70 mt-1">Tap on the map to set precise coordinates, search to pin a location, or paste coordinates from a map app.</div>
                   {isClient && (
-                    <div className="mt-2 h-64 w-full rounded overflow-hidden border">
+                    <div className="mt-2 h-64 w-full rounded overflow-hidden border relative z-0">
                       <MapPicker
                         center={mapCenter}
                         lat={!Number.isNaN(parseFloat(locationLat)) ? parseFloat(locationLat) : null}
@@ -404,9 +416,9 @@ export default function SubmitEventPage() {
                         <div className="font-semibold">{status}</div>
                         {createdId && (
                           <div className="text-xs mt-1">
-                            <a href={`/events/${createdId}`} className="underline">View event</a>
+                            <Link href={`/events/${createdId}`} className="underline">View event</Link>
                             <span className="mx-2 opacity-50">•</span>
-                            <a href="/events" className="underline">Browse all events</a>
+                            <Link href="/events" className="underline">Browse all events</Link>
                           </div>
                         )}
                       </div>
@@ -417,9 +429,11 @@ export default function SubmitEventPage() {
                 <div className="text-[11px] opacity-70 mt-3 text-center">By submitting, you agree to our terms and policies.</div>
               </div>
             </div>
+            
+          </div>
 
             {/* Preview card */}
-            <aside className="md:col-span-1 md:flex-none md:w-[22rem]">
+            <aside className="sm:col-span-1 sm:col-start-2 md:col-span-1 md:col-start-3 md:flex-none md:w-[22rem]">
               <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
                 <div
                   className="h-40 w-full"
@@ -445,9 +459,9 @@ export default function SubmitEventPage() {
                     For best results, use an SVG image. If omitted, a placeholder is shown.
                   </div>
                   <div className="mt-4 flex items-center gap-3">
-                    <a href="/events" className="text-xs underline">Explore events</a>
+                    <Link href="/events" className="text-xs underline">Explore events</Link>
                     <span className="hidden sm:inline text-xs opacity-50">•</span>
-                    <a href="/" className="text-xs underline">Home</a>
+                    <Link href="/" className="text-xs underline">Home</Link>
                   </div>
                 </div>
               </div>

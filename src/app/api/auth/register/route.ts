@@ -1,30 +1,32 @@
-// src/app/api/auth/register/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hashPassword, signToken, commitSessionCookie } from "@/lib/auth";
+import { verifyPassword, signToken, commitSessionCookie } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, password, role } = body || {};
-    if (!email || !password || !role) {
-      return NextResponse.json({ error: "Missing required fields: email, password, role" }, { status: 400 });
+    const { email, password, remember } = body || {};
+    if (!email || !password) {
+      return NextResponse.json({ error: "Missing required fields: email, password" }, { status: 400 });
     }
-    if (role !== "STUDENT" && role !== "STUDIO_OWNER") {
-      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+    const ok = await verifyPassword(password, user.passwordHash);
+    if (!ok) {
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
-    const passwordHash = await hashPassword(password);
-    const user = await prisma.user.create({ data: { email, name, passwordHash, role } });
-    const expSeconds = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30; // 30 days persistent session
-    const token = signToken({ userId: user.id, role: user.role as any, exp: expSeconds });
-    const res = NextResponse.json({ id: user.id, email: user.email, role: user.role, name: user.name }, { status: 201 });
-    commitSessionCookie(res, token, 60 * 60 * 24 * 30);
+    // 30 days if remember me checked, else default 7 days
+    const expSeconds = Math.floor(Date.now() / 1000) + (remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7);
+    const token = signToken({ userId: user.id, role: user.role, exp: expSeconds });
+    const res = NextResponse.json(
+      { id: user.id, email: user.email, role: user.role, name: user.name },
+      { status: 200 }
+    );
+    commitSessionCookie(res, token, remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7);
     return res;
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 }

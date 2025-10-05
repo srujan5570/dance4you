@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -39,7 +40,7 @@ export default function RegisterPage() {
           window.location.href = "/events";
         }
       }, 500);
-    } catch (e) {
+    } catch {
       setStatus("Network error");
     } finally {
       setSubmitting(false);
@@ -97,7 +98,7 @@ export default function RegisterPage() {
           </button>
 
           <div className="text-xs opacity-70 text-center">
-            Already have an account? <a href="/auth/login" className="underline">Log in</a>
+            Already have an account? <Link href="/auth/login" className="underline">Log in</Link>
           </div>
         </form>
       </section>

@@ -19,12 +19,7 @@ export async function GET() {
       // Include coordinates for client-side distance filtering
       locationLat: true,
       locationLng: true,
-      // Exclude contact fields intentionally
-      // contactPhone: false,
-      // contactEmail: false,
-      // venueAddress: false,
-      // venueMapUrl: false,
-      // contactNotes: false,
+      // Contact fields are intentionally excluded
     },
   });
   return NextResponse.json(events);
@@ -37,7 +32,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden: Studio owner required" }, { status: 403 });
     }
     const body = await req.json();
-    const { title, city, date, style, image, description, contactPhone, contactEmail, venueAddress, venueMapUrl, contactNotes, locationLat, locationLng } = body || {};
+    const {
+      title,
+      city,
+      date,
+      style,
+      image,
+      description,
+      contactPhone,
+      contactEmail,
+      venueAddress,
+      venueMapUrl,
+      contactNotes,
+      locationLat,
+      locationLng,
+    } = body || {};
 
     if (!title || !city || !date || !style) {
       return NextResponse.json(
@@ -51,7 +60,10 @@ export async function POST(req: Request) {
     const latNum = typeof locationLat === "number" ? locationLat : parseFloat(locationLat);
     const lngNum = typeof locationLng === "number" ? locationLng : parseFloat(locationLng);
     if (Number.isNaN(latNum) || Number.isNaN(lngNum)) {
-      return NextResponse.json({ error: "Missing required fields: locationLat, locationLng" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing or invalid required fields: locationLat, locationLng" },
+        { status: 400 }
+      );
     }
 
     const created = await prisma.event.create({
@@ -74,8 +86,9 @@ export async function POST(req: Request) {
         locationLng: lngNum,
       },
     });
+
     return NextResponse.json(created, { status: 201 });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 }

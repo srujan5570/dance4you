@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const [session, setSession] = useState<{ authenticated: boolean; user?: { id?: string; email?: string; name?: string; role?: string } } | null>(null);
@@ -59,7 +60,7 @@ export default function DashboardPage() {
           const data = await res.json();
           setBookings(Array.isArray(data) ? data : []);
         }
-      } catch (e) {
+      } catch {
         setError("Failed to load bookings");
       } finally {
         setLoading(false);
@@ -193,14 +194,14 @@ export default function DashboardPage() {
               </div>
               {!isAuthed && (
                 <div className="mt-3 rounded bg-[#fff7ed] text-[#9a3412] px-3 py-2 text-xs">
-                  Please <a href="/auth/login" className="underline">log in</a> or <a href="/auth/register" className="underline">register</a> to view your dashboard.
+                  Please <Link href="/auth/login" className="underline">log in</Link> or <Link href="/auth/register" className="underline">register</Link> to view your dashboard.
                 </div>
               )}
               {isAuthed && (
                 <div className="mt-4 flex flex-wrap gap-3 text-xs">
-                  <a href="/submit-event" className="underline">Submit an event</a>
-                  <a href="/events" className="underline">Browse events</a>
-                  <a href="/" className="underline">Home</a>
+                  <Link href="/submit-event" className="underline">Submit event</Link>
+                  <Link href="/events" className="underline">Browse events</Link>
+                  <Link href="/" className="underline">Home</Link>
                   <button onClick={handleLogout} className="ml-auto bg-black text-white px-3 py-1 rounded hover:opacity-90">Log out</button>
                 </div>
               )}
@@ -290,7 +291,7 @@ export default function DashboardPage() {
                         <div className="text-xs opacity-70">{new Date(b.createdAt).toLocaleString()}</div>
                       </div>
                       <div className="mt-2 flex items-center gap-3 text-xs">
-                        <a href={`/events/${b.eventId}`} className="underline">View event</a>
+                        <Link href={`/events/${b.eventId}`} className="underline">View event</Link>
                         {b.status !== "CANCELLED" && (
                           <button onClick={() => cancelBooking(b.id)} className="text-red-600 hover:underline">Cancel booking</button>
                         )}
@@ -311,7 +312,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-3 text-xs opacity-80">Submit and manage your events.</div>
                 <div className="mt-3 flex items-center gap-3 text-xs">
-                  <a href="/submit-event" className="underline">Submit event</a>
+                  <Link href="/submit-event" className="underline">Submit event</Link>
                 </div>
                 <div className="mt-4">
                   {ownerEvents.length === 0 ? (
@@ -326,7 +327,9 @@ export default function DashboardPage() {
                               <div className="text-xs opacity-70">{ev.city} • {ev.date} • {ev.style}</div>
                             </div>
                             <div className="flex items-center gap-3 text-xs">
-                              <a href={`/events/${ev.id}`} className="underline">View</a>
+                              <Link href={`/events/${ev.id}`} className="underline">View</Link>
+                              {/* Keeping this as Link for internal navigation */}
+                              
                               <button onClick={() => deleteEvent(ev.id)} className="text-red-600 hover:underline">Delete</button>
                             </div>
                           </div>

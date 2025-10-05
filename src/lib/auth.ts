@@ -1,5 +1,6 @@
 // src/lib/auth.ts
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 
 const SECRET = process.env.JWT_SECRET || "dev-secret";
@@ -58,11 +59,10 @@ export async function readSessionCookie(): Promise<{ userId: string; role: "STUD
   return verifyToken(token);
 }
 
-export function commitSessionCookie(res: Response, token: string, maxAgeSeconds?: number): void {
-  // NextResponse provides cookies on the Response object in App Router
-  // We will cast to any to access cookies in route handlers
-  const r = res as any;
-  r.cookies?.set?.("session", token, {
+type ResponseWithCookies = NextResponse & { cookies: { set: (name: string, value: string, options?: { httpOnly?: boolean; sameSite?: "lax" | "strict" | "none"; path?: string; secure?: boolean; maxAge?: number }) => void } };
+
+export function commitSessionCookie(res: ResponseWithCookies, token: string, maxAgeSeconds?: number): void {
+  res.cookies.set("session", token, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
@@ -71,9 +71,8 @@ export function commitSessionCookie(res: Response, token: string, maxAgeSeconds?
   });
 }
 
-export function clearSessionCookie(res: Response): void {
-  const r = res as any;
-  r.cookies?.set?.("session", "", {
+export function clearSessionCookie(res: ResponseWithCookies): void {
+  res.cookies.set("session", "", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
