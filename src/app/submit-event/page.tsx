@@ -18,15 +18,11 @@ export default function SubmitEventPage() {
   const [venueMapUrl, setVenueMapUrl] = useState("");
   const [contactNotes, setContactNotes] = useState("");
   // Precise location coordinates (optional)
--  const [locationLat, setLocationLat] = useState<string>("");
--  const [locationLng, setLocationLng] = useState<string>("");
-+  const [locationLat, setLocationLat] = useState<string>("17.3850");
-+  const [locationLng, setLocationLng] = useState<string>("78.4867");
+  const [locationLat, setLocationLat] = useState<string>("17.3850");
+  const [locationLng, setLocationLng] = useState<string>("78.4867");
   // Client-only map state
--  const [isClient, setIsClient] = useState(false);
--  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]);
-+  const [isClient, setIsClient] = useState(false);
-+  const [mapCenter, setMapCenter] = useState<[number, number]>([17.3850, 78.4867]);
+  const [isClient, setIsClient] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([17.3850, 78.4867]);
   useEffect(() => {
     setIsClient(true);
     if (typeof navigator !== "undefined" && navigator.geolocation) {
@@ -177,8 +173,9 @@ export default function SubmitEventPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Form card */}
           <div className="md:col-span-2">
-            <div className="rounded-2xl border bg-white shadow-sm">
-              <div className="px-5 py-4 border-b flex items-center justify-between">
+            <div className="md:flex md:flex-row md:items-start md:gap-6">
+              <div className="rounded-2xl border bg-white shadow-sm md:flex-1">
+                <div className="px-5 py-4 border-b flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">Event details</h3>
                   <p className="text-xs opacity-70">Provide the core information for your event. Fields marked with * are required.</p>
@@ -422,7 +419,7 @@ export default function SubmitEventPage() {
             </div>
 
             {/* Preview card */}
-            <aside className="md:col-span-1">
+            <aside className="md:col-span-1 md:flex-none md:w-[22rem]">
               <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
                 <div
                   className="h-40 w-full"
