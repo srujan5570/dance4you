@@ -18,11 +18,15 @@ export default function SubmitEventPage() {
   const [venueMapUrl, setVenueMapUrl] = useState("");
   const [contactNotes, setContactNotes] = useState("");
   // Precise location coordinates (optional)
-  const [locationLat, setLocationLat] = useState<string>("");
-  const [locationLng, setLocationLng] = useState<string>("");
+-  const [locationLat, setLocationLat] = useState<string>("");
+-  const [locationLng, setLocationLng] = useState<string>("");
++  const [locationLat, setLocationLat] = useState<string>("17.3850");
++  const [locationLng, setLocationLng] = useState<string>("78.4867");
   // Client-only map state
-  const [isClient, setIsClient] = useState(false);
-  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]);
+-  const [isClient, setIsClient] = useState(false);
+-  const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]);
++  const [isClient, setIsClient] = useState(false);
++  const [mapCenter, setMapCenter] = useState<[number, number]>([17.3850, 78.4867]);
   useEffect(() => {
     setIsClient(true);
     if (typeof navigator !== "undefined" && navigator.geolocation) {
