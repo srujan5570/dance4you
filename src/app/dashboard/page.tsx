@@ -313,6 +313,7 @@ export default function DashboardPage() {
                 <div className="mt-3 text-xs opacity-80">Submit and manage your events.</div>
                 <div className="mt-3 flex items-center gap-3 text-xs">
                   <Link href="/submit-event" className="underline">Submit event</Link>
+                  <Link href="/studio/setup" className="underline">Edit studio details</Link>
                 </div>
                 <div className="mt-4">
                   {ownerEvents.length === 0 ? (

@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Dynamically import the map component to avoid SSR issues
+const EventsMap = dynamic(() => import("@/components/EventsMap"), { ssr: false });
 
 type EventItem = {
   id: string;
@@ -27,11 +31,32 @@ export default function EventsPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Near me state
-  const [nearMe, setNearMe] = useState(false);
+  const [nearMe, setNearMe] = useState(true); // Default to true for automatic distance sorting
   const [radiusKm, setRadiusKm] = useState<number>(25);
   const [myLat, setMyLat] = useState<number | null>(null);
   const [myLng, setMyLng] = useState<number | null>(null);
   const [locError, setLocError] = useState<string | null>(null);
+  
+  // Map view state
+  const [showMap, setShowMap] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  // Get saved location from localStorage
+  useEffect(() => {
+    const savedLocation = localStorage.getItem('userLocation');
+    if (savedLocation) {
+      try {
+        const { latitude, longitude } = JSON.parse(savedLocation);
+        setMyLat(latitude);
+        setMyLng(longitude);
+      } catch (err) {
+        console.error('Error parsing saved location:', err);
+        requestMyLocation(); // Fallback to requesting location
+      }
+    } else {
+      requestMyLocation(); // No saved location, request it
+    }
+  }, []);
 
   // Request geolocation
   async function requestMyLocation() {
@@ -44,6 +69,11 @@ export default function EventsPage() {
       (pos) => {
         setMyLat(pos.coords.latitude);
         setMyLng(pos.coords.longitude);
+        // Save to localStorage for future use
+        localStorage.setItem('userLocation', JSON.stringify({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude
+        }));
       },
       (err) => {
         setLocError("Failed to get your location: " + (err?.message || "Unknown error"));
@@ -80,12 +110,13 @@ export default function EventsPage() {
   }, []);
 
   const filtered = useMemo(() => {
-    const computeDistance = nearMe && typeof myLat === "number" && typeof myLng === "number";
+    // Always compute distance if we have user location, regardless of nearMe setting
+    const hasUserLocation = typeof myLat === "number" && typeof myLng === "number";
 
     const augmented = events.map((ev) => {
       let dist: number | null = null;
       if (
-        computeDistance &&
+        hasUserLocation &&
         typeof ev.locationLat === "number" &&
         typeof ev.locationLng === "number"
       ) {
@@ -94,7 +125,20 @@ export default function EventsPage() {
       return { ...ev, _distanceKm: dist };
     });
 
-      const res = augmented.filter((ev) => {
+    // Sort by distance if nearMe is enabled and we have user location
+    const sorted = [...augmented];
+    if (hasUserLocation) {
+      sorted.sort((a, b) => {
+        // Handle null distances (put them at the end)
+        if (a._distanceKm === null && b._distanceKm === null) return 0;
+        if (a._distanceKm === null) return 1;
+        if (b._distanceKm === null) return -1;
+        // Sort by distance
+        return a._distanceKm - b._distanceKm;
+      });
+    }
+
+    const res = sorted.filter((ev) => {
       const matchesQ = q ? ev.title.toLowerCase().includes(q.toLowerCase()) : true;
       const matchesCity = city ? ev.city.toLowerCase().includes(city.toLowerCase()) : true;
       const matchesDate = date ? ev.date === date : true;
@@ -205,6 +249,22 @@ export default function EventsPage() {
             <div className="text-xs text-red-600 md:col-span-2">{locError}</div>
           )}
         </div>
+        
+        {/* Map view toggle */}
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setShowMap(!showMap)}
+            className={`flex items-center gap-2 rounded px-4 py-2 text-sm font-medium ${
+              showMap ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path fillRule="evenodd" d="M8.161 2.58a1.875 1.875 0 011.678 0l4.993 2.498c.106.052.23.052.336 0l3.869-1.935A1.875 1.875 0 0121.75 4.82v12.485c0 .71-.401 1.36-1.037 1.677l-4.875 2.437a1.875 1.875 0 01-1.676 0l-4.994-2.497a.375.375 0 00-.336 0l-3.868 1.935A1.875 1.875 0 012.25 19.18V6.695c0-.71.401-1.36 1.036-1.677l4.875-2.437zM9 6a.75.75 0 01.75.75V15a.75.75 0 01-1.5 0V6.75A.75.75 0 019 6zm6.75 3a.75.75 0 00-1.5 0v8.25a.75.75 0 001.5 0V9z" clipRule="evenodd" />
+            </svg>
+            {showMap ? "Hide Map" : "Show on Map"}
+          </button>
+        </div>
       </section>
 
       {/* Results */}
@@ -215,6 +275,16 @@ export default function EventsPage() {
           <div className="text-center text-sm text-red-600">{error}</div>
         ) : filtered.length === 0 ? (
           <div className="text-center text-sm opacity-70">No events found.</div>
+        ) : showMap ? (
+          <div className="h-[600px] w-full rounded-lg overflow-hidden border mb-6">
+            <EventsMap 
+              events={filtered} 
+              userLat={myLat} 
+              userLng={myLng}
+              selectedEventId={selectedEventId}
+              onSelectEvent={(id) => setSelectedEventId(id)}
+            />
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {filtered.map((ev) => (

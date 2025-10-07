@@ -71,15 +71,15 @@ export default async function Home() {
             {
               name: "Dance Workshop",
               desc: "Enhance Your Skills with Experts",
-              cta: { label: "View Course", href: "/learn-live" },
-              readMoreHref: "/learn-live",
+              cta: { label: "View Course", href: "/dance-workshop" },
+              readMoreHref: "/dance-workshop",
               img: "https://static.wixstatic.com/media/197520_41e825beb8f64a41a4158773c61036f7~mv2.jpg/v1/fill/w_224,h_226,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_auto/197520_41e825beb8f64a41a4158773c61036f7~mv2.jpg",
             },
             {
               name: "Regular Class",
               desc: "Express Yourself Through Dance",
-              cta: { label: "Book Now", href: "/events" },
-              readMoreHref: "/learn-live",
+              cta: { label: "Book Now", href: "/regular-classes" },
+              readMoreHref: "/regular-classes",
               img: "https://static.wixstatic.com/media/11062b_5689103989fb4598829462af189dec4e~mv2.jpg/v1/fill/w_224,h_226,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_auto/11062b_5689103989fb4598829462af189dec4e~mv2.jpg",
             },
             {
@@ -89,27 +89,7 @@ export default async function Home() {
               readMoreHref: "/learn-live",
               img: "https://static.wixstatic.com/media/11062b_9b788b37b9054864934bbb1e85592b06~mv2.jpg/v1/fill/w_224,h_226,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_auto/11062b_9b788b37b9054864934bbb1e85592b06~mv2.jpg",
             },
-            {
-              name: "Adult Dance Classes (Batch)",
-              desc: "Structured training for adults",
-              cta: { label: "Explore", href: "/learn-live" },
-              readMoreHref: "/learn-live",
-              img: "https://thecenterdance.files.wordpress.com/2018/06/facebook-collage-adult-summer-classes.jpg",
-            },
-            {
-              name: "Children Dance Classes (Batch)",
-              desc: "Fun, safe and engaging classes for kids",
-              cta: { label: "Explore", href: "/learn-live" },
-              readMoreHref: "/learn-live",
-              img: "https://www.bing.com/th/id/OIP.ZaqEPdw3_ol5Q0XB_ug4BQHaE7?w=263&h=211&c=8&rs=1&qlt=90&o=6&cb=12&dpr=1.3&pid=3.1&rm=2",
-            },
-            {
-              name: "Dance Workshop Event",
-              desc: "One-time intensive workshop events",
-              cta: { label: "View Events", href: "/events" },
-              readMoreHref: "/events",
-              img: "https://tse2.mm.bing.net/th/id/OIP.CYx7GHjr9TfWvkrm7vtCAAHaEC?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3",
-            },
+            
           ].map((s) => (
             <div key={s.name} className="flex flex-col items-start">
               <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden shadow-sm">
@@ -127,10 +107,7 @@ export default async function Home() {
               <div className="mt-3">
                 <div className="text-[#f97316] font-semibold">{s.name}</div>
                 <div className="text-sm opacity-80">{s.desc}</div>
-                <div className="flex items-center gap-3 mt-2">
-                  <Link href={s.readMoreHref} className="text-xs underline">
-                    Read More
-                  </Link>
+                <div className="flex items-center mt-2">
                   <Link href={s.cta.href} className="inline-block">
                     <button className="rounded bg-black text-white text-xs px-3 py-1 border border-[#f97316]">
                       {s.cta.label}

@@ -7,6 +7,7 @@ import { readSessionCookie } from "../lib/auth";
 import Link from "next/link";
 import MobileNav from "../components/MobileNav";
 import Image from "next/image";
+import LocationInitializer from "../components/LocationInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +57,9 @@ export default async function RootLayout({
 
             <nav className="hidden md:flex items-center gap-6 text-[15px] font-medium" style={{ color: "#167C36" }}>
               <Link href="/" className="hover:underline">Home</Link>
+              {session && (
+                <Link href="/dashboard" className="hover:underline">My Dashboard</Link>
+              )}
               <Link href="/learn-live" className="hover:underline">Learn &amp; Live</Link>
               <Link href="/events" className="hover:underline">Book Online</Link>
               <Link href="/submit-event" className="hover:underline">Submit Event</Link>
@@ -63,7 +67,9 @@ export default async function RootLayout({
 
             <div className="flex items-center gap-3">
               {session ? (
-                <Link href="/dashboard" className="text-sm font-medium hover:underline">My Dashboard</Link>
+                <Link href="/dashboard" className="flex items-center justify-center w-8 h-8 rounded-full bg-[#f97316] text-white font-medium hover:bg-[#ea580c] transition-colors">
+                  {"U"}
+                </Link>
               ) : (
                 <Link href="/auth/login" className="text-sm font-medium hover:underline">Log In</Link>
               )}
@@ -73,6 +79,8 @@ export default async function RootLayout({
           </div>
         </header>
         {children}
+        {/* Location initializer to get user location */}
+        {typeof window !== 'undefined' && <LocationInitializer />}
         {/* Professional footer */}
         <footer className="mt-12 border-t bg-[#fff9e6]">
           <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
