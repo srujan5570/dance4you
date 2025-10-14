@@ -681,16 +681,23 @@ export default function ChatPage() {
       if (dk.getTime() === yesterday.getTime()) return "Yesterday";
       return d.toLocaleDateString();
     };
-    return Object.entries(map).map(([k, items]) => {
-      const groups: { isMine: boolean; items: MessageDTO[] }[] = [];
-      for (const m of items) {
-        const mine = !!m.isMine;
-        const prev = groups[groups.length - 1];
-        if (prev && prev.isMine === mine) prev.items.push(m);
-        else groups.push({ isMine: mine, items: [m] });
-      }
-      return { dayKey: k, label: formatLabel(k), groups };
-    });
+    return Object.entries(map)
+      .sort(([a], [b]) => a.localeCompare(b)) // Sort sections by date (oldest first)
+      .map(([k, items]) => {
+        // Sort messages within each day chronologically (oldest first)
+        const sortedItems = items.sort((a, b) => 
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        
+        const groups: { isMine: boolean; items: MessageDTO[] }[] = [];
+        for (const m of sortedItems) {
+          const mine = !!m.isMine;
+          const prev = groups[groups.length - 1];
+          if (prev && prev.isMine === mine) prev.items.push(m);
+          else groups.push({ isMine: mine, items: [m] });
+        }
+        return { dayKey: k, label: formatLabel(k), groups };
+      });
   }, [messages]);
 
   const thread = (
