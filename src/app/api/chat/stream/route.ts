@@ -34,18 +34,10 @@ export async function GET(req: NextRequest) {
       };
       chatHub.addClient(client);
 
-      // Push immediate receipts on connect to speed up tick updates
+      // Only mark messages as delivered when user actually connects to view them
       ;(async () => {
         try {
-          // Immediately mark as read on connect
-          const now = new Date();
-          await prisma.conversationParticipant.updateMany({
-            where: { conversationId, userId: session.userId! },
-            data: { lastReadAt: now },
-          });
-          chatHub.broadcast({ type: "receipt", conversationId, payload: { kind: "read", userId: session.userId!, readUpTo: now.toISOString() } });
-      
-          // Broadcast delivered for recent messages from the other participant
+          // Broadcast delivered for recent messages from the other participant only when user connects
           const recentFromOther = await prisma.message.findMany({
             where: { conversationId, senderId: { not: session.userId! } },
             orderBy: { createdAt: "asc" },

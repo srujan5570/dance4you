@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useChatStorage } from "../../hooks/useChatStorage";
 
@@ -44,6 +44,28 @@ export default function ChatPage() {
   // keep latest messages for event handlers to avoid stale closures
   const messagesRef = useRef<(MessageDTO & { isMine?: boolean })[]>([]);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+  
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        listRef.current?.scrollTo({ top: listRef.current!.scrollHeight, behavior: "smooth" });
+      }, 100);
+    }
+  }, [messages]);
+
+  // Function to mark messages as read
+  const markAsRead = useCallback(async (conversationId: string) => {
+    try {
+      await fetch('/api/chat/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId }),
+      });
+    } catch (error) {
+      console.error('Failed to mark messages as read:', error);
+    }
+  }, []);
   // Local cache of messages per conversation for instant switching
   const messageCacheRef = useRef<Record<string, (MessageDTO & { isMine?: boolean })[]>>({});
   const [threadLoading, setThreadLoading] = useState(false);
@@ -258,6 +280,9 @@ export default function ChatPage() {
           return next;
         });
         setTimeout(() => { listRef.current?.scrollTo({ top: listRef.current!.scrollHeight, behavior: "smooth" }); }, 10);
+        
+        // Mark messages as read when user views the conversation
+        markAsRead(activeId);
       } catch (e) {
         if ((e as any)?.name !== 'AbortError') console.error(e);
       } finally {
@@ -327,7 +352,7 @@ export default function ChatPage() {
     esRef.current = es;
   
     return () => { cancelled = true; controller.abort(); try { es.close(); } catch {}; esRef.current = null; setTypingUsers([]); };
-  }, [activeId, me]);
+  }, [activeId, me, markAsRead]);
 
   function otherParticipant(c: ConversationDTO): UserRef | null {
     if (!c || !Array.isArray(c.participants) || c.participants.length === 0) return null;
@@ -701,7 +726,7 @@ export default function ChatPage() {
   }, [messages]);
 
   const thread = (
-    <div className="w-full md:w-2/3 flex flex-col h-screen md:h-full max-h-screen">
+    <div className="w-full md:w-2/3 flex flex-col h-full">
       {threadHeader}
       {privateStatus.state === "pending" && (
         <div className="bg-yellow-50 border-b border-yellow-200 text-yellow-800 text-sm px-4 py-2 flex items-center justify-between">
@@ -955,7 +980,7 @@ export default function ChatPage() {
   );
 
   return (
-    <div className="h-dvh md:h-[calc(100vh-64px)] flex">
+    <div className="h-screen md:h-[calc(100vh-64px)] flex">
       {sidebar}
       {thread}
       {/* Mobile chats overlay */}

@@ -105,20 +105,9 @@ export async function POST(req: Request) {
   const messageWithClientId = clientId ? { ...message, clientId } : message;
   chatHub.broadcast({ type: "message:new", conversationId, payload: messageWithClientId });
 
-  // broadcast delivered receipts to indicate recipients currently online received the message
-  try {
-    const onlineUserIds = chatHub.getPresence(conversationId).filter((id) => id !== session.userId);
-    for (const uid of onlineUserIds) {
-      chatHub.broadcast({ type: "receipt", conversationId, payload: { kind: "delivered", userId: uid, messageId: message.id } });
-    }
-  } catch {}
-
-  // Since the sender is actively viewing the thread while replying, mark as read up to now for this participant and broadcast read receipt
-  try {
-    const now = new Date();
-    await prisma.conversationParticipant.update({ where: { id: participant.id }, data: { lastReadAt: now } });
-    chatHub.broadcast({ type: "receipt", conversationId, payload: { kind: "read", userId: session.userId!, readUpTo: now.toISOString() } });
-  } catch {}
+  // Do not automatically mark messages as delivered or read when created
+  // Delivered status should only be set when recipient actually receives the message
+  // Read status should only be set when recipient actually reads the message
 
   return NextResponse.json(messageWithClientId);
 }
