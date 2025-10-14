@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import data from "@emoji-mart/data";
-import Picker from "emoji-mart";
+// import { Picker } from "emoji-mart"; // Temporarily commented out
 import { useChatStorage } from "../../hooks/useChatStorage";
 
 interface UserRef {
@@ -41,8 +41,6 @@ export default function ChatPage() {
   const [messageStatus, setMessageStatus] = useState<Record<string, 'sent' | 'delivered' | 'read'>>({});
   const tempIdRef = useRef<number>(0);
   
-  // Initialize chat storage
-  const chatStorage = useChatStorage();
   // keep latest messages for event handlers to avoid stale closures
   const messagesRef = useRef<(MessageDTO & { isMine?: boolean })[]>([]);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
@@ -56,6 +54,14 @@ export default function ChatPage() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [me, setMe] = useState<UserRef | null>(null);
+  
+  // Initialize chat storage
+  const chatStorage = useChatStorage({
+    conversations,
+    messages,
+    activeConversationId: activeId,
+    userId: me?.id || null
+  });
   const listRef = useRef<HTMLDivElement>(null);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [presenceUsers, setPresenceUsers] = useState<string[]>([]);
@@ -753,7 +759,7 @@ export default function ChatPage() {
                         </button>
                         {openReactionForMessage === m.id && (
                           <div className={`absolute ${g.isMine ? "right-0" : "left-0"} z-50`}>
-                            <Picker
+                            {/* <Picker
                               data={data}
                               onEmojiSelect={(emoji: any) => {
                                 const char = emoji.native || emoji.shortcodes || "";
@@ -768,7 +774,8 @@ export default function ChatPage() {
                                 setOpenReactionForMessage(null);
                               }}
                               theme="light"
-                            />
+                            /> */}
+                            <div>Emoji picker temporarily disabled</div>
                           </div>
                         )}
                       </div>
@@ -849,7 +856,7 @@ export default function ChatPage() {
           {showEmojiPicker && (
             <div className="relative">
               <div className="absolute bottom-12 right-0 z-40">
-                <Picker
+                {/* <Picker
                   data={data}
                   onEmojiSelect={(emoji: any) => {
                     const char = emoji.native || emoji.shortcodes || "";
@@ -857,7 +864,10 @@ export default function ChatPage() {
                     setShowEmojiPicker(false);
                   }}
                   theme="light"
-                />
+                /> */}
+                <div className="bg-white border rounded p-4 shadow-lg">
+                  Emoji picker temporarily disabled
+                </div>
               </div>
             </div>
           )}
