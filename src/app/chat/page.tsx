@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import data from "@emoji-mart/data";
-// import { Picker } from "emoji-mart"; // Temporarily commented out
 import { useChatStorage } from "../../hooks/useChatStorage";
 
 interface UserRef {
@@ -36,6 +34,8 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [conversations, setConversations] = useState<ConversationDTO[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  
+
   const [messages, setMessages] = useState<(MessageDTO & { isMine?: boolean })[]>([]);
   // track message status for my messages: 'sent' | 'delivered' | 'read'
   const [messageStatus, setMessageStatus] = useState<Record<string, 'sent' | 'delivered' | 'read'>>({});
@@ -269,6 +269,10 @@ export default function ChatPage() {
     try { esRef.current?.close(); } catch {}
     esRef.current = null;
     const es = new EventSource(`/api/chat/stream?conversationId=${activeId}`);
+    
+    es.onerror = (err) => {
+      console.error('EventSource error:', err);
+    };
   
     es.addEventListener('message:new', (ev: MessageEvent) => {
       try {
@@ -320,7 +324,6 @@ export default function ChatPage() {
       try { const d: any = JSON.parse(ev.data); const userId: string | undefined = d?.userId; const typing: boolean = !!d?.typing; if (!userId || userId === me?.id) return; setTypingUsers((prev) => typing ? Array.from(new Set([...prev, userId])) : prev.filter((id) => id !== userId)); } catch {}
     });
   
-    es.onerror = () => { /* Optional: handle connection errors */ };
     esRef.current = es;
   
     return () => { cancelled = true; controller.abort(); try { es.close(); } catch {}; esRef.current = null; setTypingUsers([]); };
@@ -691,7 +694,7 @@ export default function ChatPage() {
   }, [messages]);
 
   const thread = (
-    <div className="w-full md:w-2/3 flex flex-col h-dvh md:h-full">
+    <div className="w-full md:w-2/3 flex flex-col h-screen md:h-full max-h-screen">
       {threadHeader}
       {privateStatus.state === "pending" && (
         <div className="bg-yellow-50 border-b border-yellow-200 text-yellow-800 text-sm px-4 py-2 flex items-center justify-between">
@@ -709,7 +712,7 @@ export default function ChatPage() {
       {privateStatus.state === "declined" && (
         <div className="bg-red-50 border-b border-red-200 text-red-700 text-sm px-4 py-2">Private chat request was declined.</div>
       )}
-      <div ref={listRef} className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 bg-[#ece5dd]">
+      <div ref={listRef} className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 bg-[#ece5dd] min-h-0">
         {sections.map((section) => (
           <div key={section.dayKey}>
             <div className="text-center text-xs text-gray-500 my-2">{section.label}</div>
@@ -824,7 +827,7 @@ export default function ChatPage() {
           </div>
         ))}
       </div>
-      <div className="p-3 pb-[env(safe-area-inset-bottom)] border-t border-gray-200 dark:border-gray-800 sticky bottom-0 bg-white md:static">
+      <div className="p-3 pb-[env(safe-area-inset-bottom)] border-t border-gray-200 dark:border-gray-800 bg-white shrink-0">
         {typingUsers.length > 0 && (
           <div className="px-2 pb-2 text-xs text-gray-500">{typingUsers.length === 1 ? "Typing..." : "Several people are typing..."}</div>
         )}
