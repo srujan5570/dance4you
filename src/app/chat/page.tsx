@@ -90,6 +90,8 @@ export default function ChatPage() {
   // Reactions: messageId -> { emoji: userId[] }
   const [reactions, setReactions] = useState<Record<string, Record<string, string[]>>>({});
   const esRef = useRef<EventSource | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectAttemptsRef = useRef<number>(0);
   // Lightbox state for attachment previews
   const [lightbox, setLightbox] = useState<{ urls: string[]; index: number } | null>(null);
   // discover users state
@@ -290,68 +292,108 @@ export default function ChatPage() {
       }
     })();
   
-    // Reset and open EventSource stream for live updates
+    // Reset and open EventSource stream for live updates with reconnection logic
     try { esRef.current?.close(); } catch {}
     esRef.current = null;
-    const es = new EventSource(`/api/chat/stream?conversationId=${activeId}`);
     
-    es.onerror = (err) => {
-      console.error('EventSource error:', err);
-    };
-  
-    es.addEventListener('message:new', (ev: MessageEvent) => {
-      try {
-        const msg: any = JSON.parse(ev.data);
-        setMessages((prev) => [...prev, { ...msg, isMine: msg?.sender?.id === me?.id }]);
-        setConversations((prev) => prev.map((c) => (c.id === activeId ? { ...c, messages: [msg] } : c)));
-        // Update cache with de-duplication (replace optimistic by clientId or skip if id exists)
-        const cachePrev = messageCacheRef.current[activeId] || [];
-        const optimisticIdx = cachePrev.findIndex((p: any) => p?.clientId && p.clientId === msg.clientId);
-        const serverIdx = cachePrev.findIndex((p: any) => p.id === msg.id);
-        let cacheNext = cachePrev;
-        const asMine = msg?.sender?.id === me?.id;
-        if (optimisticIdx !== -1) {
-          cacheNext = [...cachePrev];
-          cacheNext[optimisticIdx] = { ...msg, isMine: asMine };
-          if (serverIdx !== -1 && serverIdx !== optimisticIdx) cacheNext.splice(serverIdx, 1);
-        } else if (serverIdx === -1) {
-          cacheNext = [...cachePrev, { ...msg, isMine: asMine }];
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+    
+    const connectEventSource = () => {
+      if (cancelled) return;
+      
+      const es = new EventSource(`/api/chat/stream?conversationId=${activeId}`);
+      
+      es.onopen = () => {
+        console.log('EventSource connected');
+        reconnectAttempts = 0; // Reset on successful connection
+      };
+      
+      es.onerror = (err) => {
+        console.error('EventSource error:', err);
+        es.close();
+        
+        // Implement exponential backoff reconnection
+        if (!cancelled && reconnectAttempts < maxReconnectAttempts) {
+          reconnectAttempts++;
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 30000); // Max 30 seconds
+          console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})`);
+          
+          reconnectTimeout = setTimeout(() => {
+            if (!cancelled) {
+              connectEventSource();
+            }
+          }, delay);
+        } else if (reconnectAttempts >= maxReconnectAttempts) {
+          console.error('Max reconnection attempts reached. Please refresh the page.');
         }
-        messageCacheRef.current[activeId] = cacheNext;
-        // Do not downgrade existing delivered/read status; only set to 'sent' if not present
-        setMessageStatus((prev) => { if (prev[msg.id]) return prev; return { ...prev, [msg.id]: 'sent' }; });
-        setTimeout(() => { listRef.current?.scrollTo({ top: listRef.current!.scrollHeight, behavior: "smooth" }); }, 10);
-      } catch (e) { console.error(e); }
-    });
+      };
+       
+       es.addEventListener('message:new', (ev: MessageEvent) => {
+         try {
+           const msg: any = JSON.parse(ev.data);
+           setMessages((prev) => [...prev, { ...msg, isMine: msg?.sender?.id === me?.id }]);
+           setConversations((prev) => prev.map((c) => (c.id === activeId ? { ...c, messages: [msg] } : c)));
+           // Update cache with de-duplication (replace optimistic by clientId or skip if id exists)
+           const cachePrev = messageCacheRef.current[activeId] || [];
+           const optimisticIdx = cachePrev.findIndex((p: any) => p?.clientId && p.clientId === msg.clientId);
+           const serverIdx = cachePrev.findIndex((p: any) => p.id === msg.id);
+           let cacheNext = cachePrev;
+           const asMine = msg?.sender?.id === me?.id;
+           if (optimisticIdx !== -1) {
+             cacheNext = [...cachePrev];
+             cacheNext[optimisticIdx] = { ...msg, isMine: asMine };
+             if (serverIdx !== -1 && serverIdx !== optimisticIdx) cacheNext.splice(serverIdx, 1);
+           } else if (serverIdx === -1) {
+             cacheNext = [...cachePrev, { ...msg, isMine: asMine }];
+           }
+           messageCacheRef.current[activeId] = cacheNext;
+           // Do not downgrade existing delivered/read status; only set to 'sent' if not present
+           setMessageStatus((prev) => { if (prev[msg.id]) return prev; return { ...prev, [msg.id]: 'sent' }; });
+           setTimeout(() => { listRef.current?.scrollTo({ top: listRef.current!.scrollHeight, behavior: "smooth" }); }, 10);
+         } catch (e) { console.error(e); }
+       });
+     
+       es.addEventListener('receipt', (ev: MessageEvent) => {
+         try {
+           const payload: any = JSON.parse(ev.data);
+           if (payload?.kind === 'delivered' && payload?.messageId) {
+             setMessageStatus((prev) => { const current = prev[payload.messageId]; if (current === 'read') return prev; return { ...prev, [payload.messageId]: 'delivered' }; });
+           }
+           if (payload?.kind === 'read' && payload?.readUpTo) {
+             const readTime = new Date(payload.readUpTo).getTime();
+             setMessageStatus((prev) => {
+               const next = { ...prev };
+               messagesRef.current.forEach((m) => { if (m.isMine) { const mt = new Date(m.createdAt).getTime(); if (mt <= readTime) next[m.id] = 'read'; } });
+               return next;
+             });
+           }
+         } catch (e) { console.error(e); }
+       });
+     
+       es.addEventListener('presence', (ev: MessageEvent) => {
+         try { const d: any = JSON.parse(ev.data); if (Array.isArray(d?.userIds)) setPresenceUsers(d.userIds); } catch {}
+       });
+     
+       es.addEventListener('typing', (ev: MessageEvent) => {
+         try { const d: any = JSON.parse(ev.data); const userId: string | undefined = d?.userId; const typing: boolean = !!d?.typing; if (!userId || userId === me?.id) return; setTypingUsers((prev) => typing ? Array.from(new Set([...prev, userId])) : prev.filter((id) => id !== userId)); } catch {}
+       });
+     
+       esRef.current = es;
+     };
+     
+     // Start the initial connection
+     connectEventSource();
   
-    es.addEventListener('receipt', (ev: MessageEvent) => {
-      try {
-        const payload: any = JSON.parse(ev.data);
-        if (payload?.kind === 'delivered' && payload?.messageId) {
-          setMessageStatus((prev) => { const current = prev[payload.messageId]; if (current === 'read') return prev; return { ...prev, [payload.messageId]: 'delivered' }; });
-        }
-        if (payload?.kind === 'read' && payload?.readUpTo) {
-          const readTime = new Date(payload.readUpTo).getTime();
-          setMessageStatus((prev) => {
-            const next = { ...prev };
-            messagesRef.current.forEach((m) => { if (m.isMine) { const mt = new Date(m.createdAt).getTime(); if (mt <= readTime) next[m.id] = 'read'; } });
-            return next;
-          });
-        }
-      } catch (e) { console.error(e); }
-    });
-  
-    es.addEventListener('presence', (ev: MessageEvent) => {
-      try { const d: any = JSON.parse(ev.data); if (Array.isArray(d?.userIds)) setPresenceUsers(d.userIds); } catch {}
-    });
-  
-    es.addEventListener('typing', (ev: MessageEvent) => {
-      try { const d: any = JSON.parse(ev.data); const userId: string | undefined = d?.userId; const typing: boolean = !!d?.typing; if (!userId || userId === me?.id) return; setTypingUsers((prev) => typing ? Array.from(new Set([...prev, userId])) : prev.filter((id) => id !== userId)); } catch {}
-    });
-  
-    esRef.current = es;
-  
-    return () => { cancelled = true; controller.abort(); try { es.close(); } catch {}; esRef.current = null; setTypingUsers([]); };
+    return () => { 
+       cancelled = true; 
+       controller.abort(); 
+       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+       try { esRef.current?.close(); } catch {}; 
+       esRef.current = null; 
+       setTypingUsers([]); 
+     };
   }, [activeId, me, markAsRead]);
 
   function otherParticipant(c: ConversationDTO): UserRef | null {
