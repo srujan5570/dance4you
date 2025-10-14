@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
+import { put } from "@vercel/blob";
 
 // Node.js runtime route handler (not Edge)
 export const runtime = "nodejs";
@@ -26,11 +27,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No files provided. Use 'file' or 'files' fields." }, { status: 400 });
     }
 
-    // Ensure upload directory exists
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await fs.promises.mkdir(uploadsDir, { recursive: true });
-
     const urls: string[] = [];
+    const isProduction = process.env.NODE_ENV === "production";
 
     for (const f of files) {
       // Basic validation
@@ -55,16 +53,33 @@ export async function POST(req: Request) {
       })();
       const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
       const filename = `${id}.${ext}`;
-      const filepath = path.join(uploadsDir, filename);
 
-      await fs.promises.writeFile(filepath, buffer);
-
-      const urlPath = `/uploads/${filename}`;
-      urls.push(urlPath);
+      if (isProduction) {
+        // Use Vercel Blob storage for production
+        try {
+          const blob = await put(filename, buffer, {
+            access: "public",
+            contentType: mime,
+          });
+          urls.push(blob.url);
+        } catch (blobError) {
+          console.error("Blob upload error:", blobError);
+          return NextResponse.json({ error: "Failed to upload to cloud storage" }, { status: 500 });
+        }
+      } else {
+        // Use local filesystem for development
+        const uploadsDir = path.join(process.cwd(), "public", "uploads");
+        await fs.promises.mkdir(uploadsDir, { recursive: true });
+        const filepath = path.join(uploadsDir, filename);
+        await fs.promises.writeFile(filepath, buffer);
+        const urlPath = `/uploads/${filename}`;
+        urls.push(urlPath);
+      }
     }
 
     return NextResponse.json({ urls }, { status: 201 });
   } catch (err) {
+    console.error("Upload error:", err);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }
