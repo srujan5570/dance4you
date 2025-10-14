@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import Picker from "emoji-mart";
 
 interface UserRef {
   id: string;
