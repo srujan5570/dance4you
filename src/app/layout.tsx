@@ -9,6 +9,9 @@ import MobileNav from "../components/MobileNav";
 import Image from "next/image";
 import CitySelectorModal from "../components/CitySelectorModal";
 import DesktopCityControl from "../components/DesktopCityControl";
+import AddToHomeScreen from "../components/AddToHomeScreen";
+import PWAInstaller from "../components/PWAInstaller";
+import NotificationPermission from "../components/NotificationPermission";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +34,28 @@ export const metadata: Metadata = {
   title: "Dance 4 You",
   description:
     "ONE STOP SOLUTION TO FIND DANCE EVENTS — Welcome to Dance 4 You, your ultimate destination for dance services.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Dance 4 You",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    "apple-mobile-web-app-title": "Dance 4 You",
+    "msapplication-TileColor": "#8b5cf6",
+    "msapplication-config": "/browserconfig.xml",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#8b5cf6",
 };
 
 export default async function RootLayout({
@@ -326,6 +351,9 @@ export default async function RootLayout({
             </div>
           </div>
         </footer>
+        <PWAInstaller />
+        <AddToHomeScreen />
+        <NotificationPermission />
       </body>
     </html>
   );

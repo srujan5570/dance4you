@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import data from "@emoji-mart/data";
 import Picker from "emoji-mart";
+import { useChatStorage } from "../../hooks/useChatStorage";
 
 interface UserRef {
   id: string;
@@ -39,6 +40,9 @@ export default function ChatPage() {
   // track message status for my messages: 'sent' | 'delivered' | 'read'
   const [messageStatus, setMessageStatus] = useState<Record<string, 'sent' | 'delivered' | 'read'>>({});
   const tempIdRef = useRef<number>(0);
+  
+  // Initialize chat storage
+  const chatStorage = useChatStorage();
   // keep latest messages for event handlers to avoid stale closures
   const messagesRef = useRef<(MessageDTO & { isMine?: boolean })[]>([]);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
