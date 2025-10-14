@@ -261,26 +261,27 @@ export default function EventsPage() {
 
       {/* Filters */}
       <section className="max-w-6xl mx-auto px-6 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
           <input
             type="text"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search by title"
-            className="md:col-span-1 rounded-xl border border-black/10 bg-white/60 px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+            className="sm:col-span-1 md:col-span-2 rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
           />
           {/* City filter removed; relying on user location and navbar selection */}
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+            placeholder="Select date"
+            className="sm:col-span-1 md:col-span-1 rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
           />
-          <div className="relative">
+          <div className="relative sm:col-span-1 md:col-span-2">
             <button
               type="button"
               onClick={() => setShowCategoryMenu(!showCategoryMenu)}
-              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer w-full"
+              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer w-full min-h-[40px]"
             >
               <span>
                 {selectedCategory === "all" ? "All Categories" : 
@@ -303,11 +304,11 @@ export default function EventsPage() {
               </div>
             )}
           </div>
-          <div className="relative">
+          <div className="relative sm:col-span-2 md:col-span-1">
             <button
               type="button"
               onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer"
+              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer w-full min-h-[40px]"
             >
               <span>{filterMode === "all" ? "All" : filterMode === "today" ? "Today" : filterMode === "upcoming" ? "Upcoming" : "Latest"}</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-80" viewBox="0 0 20 20" fill="currentColor">
@@ -326,8 +327,8 @@ export default function EventsPage() {
         </div>
 
         {/* Near me controls */}
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
-          <label className="flex items-center gap-2 text-sm">
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 items-center">
+          <label className="flex items-center gap-2 text-sm sm:col-span-1 md:col-span-1">
             <input
               type="checkbox"
               checked={nearMe}
@@ -346,7 +347,7 @@ export default function EventsPage() {
             step={1}
             value={radiusKm}
             onChange={(e) => setRadiusKm(Math.max(1, Math.min(200, parseFloat(e.target.value) || 0)))}
-            className="rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+            className="sm:col-span-1 md:col-span-1 rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
             placeholder="Radius (km)"
             aria-label="Radius in kilometers"
             disabled={!nearMe}
@@ -354,7 +355,7 @@ export default function EventsPage() {
           <button
             type="button"
             onClick={requestMyLocation}
-            className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-2 text-sm font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0"
+            className="sm:col-span-2 md:col-span-2 rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-2 text-sm font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 min-h-[40px]"
           >
             Use my location
           </button>

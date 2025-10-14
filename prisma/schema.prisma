@@ -3,68 +3,61 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  passwordHash  String
-  role          Role      @default(STUDENT)
-  // Add chat visibility setting (PUBLIC by default)
-  chatVisibility ChatVisibility @default(PUBLIC)
-  createdAt     DateTime  @default(now())
-  emailVerified Boolean   @default(false)
-  otpExpires    DateTime?
-  otpHash       String?
-  bookings      Booking[]
-  events        Event[]
-  studioProfile StudioProfile?
-  // Chat relations
+  id                      String                    @id @default(cuid())
+  email                   String                    @unique
+  name                    String?
+  passwordHash            String
+  role                    Role                      @default(STUDENT)
+  chatVisibility          ChatVisibility            @default(PUBLIC)
+  createdAt               DateTime                  @default(now())
+  emailVerified           Boolean                   @default(false)
+  otpExpires              DateTime?
+  otpHash                 String?
+  bookings                Booking[]
   conversationMemberships ConversationParticipant[]
+  events                  Event[]
   messagesSent            Message[]
+  studioProfile           StudioProfile?
 }
 
 model Event {
-  id          String    @id @default(cuid())
-  title       String
-  city        String
-  state       String?
-  date        String
-  style       String
-  image       String
-  // Additional poster URLs for gallery previews (JSON string for SQLite compatibility)
-  posterUrls  String? @default("[]")
-  // Dual poster system for different aspect ratios
-  poster4x3   String?  // 4:3 aspect ratio poster for event listings
-  posterDetail String? // Different aspect ratio poster for detail pages
-  description String?
-  // Contact fields (visible only to booked customers in UI)
+  id           String        @id @default(cuid())
+  title        String
+  city         String
+  state        String?
+  date         String
+  style        String
+  image        String
+  posterUrls   String?       @default("[]")
+  poster4x3    String?
+  posterDetail String?
+  description  String?
   contactPhone String?
   contactEmail String?
   venueAddress String?
   venueMapUrl  String?
   contactNotes String?
-  // Precise map coordinates
   locationLat  Float?
   locationLng  Float?
-  // New categorization and time fields
-  category    EventCategory @default(DROP_IN_CLASS)
-  startTime   String?
-  endTime     String?
-  venueName   String?
-  // Add conditional fields for categories
-  fee         String?
-  instructor  String?
-  recurrence  String?
-  battleRules String?
-  prizes      String?
-  createdAt   DateTime  @default(now())
-  ownerId     String?
-  bookings    Booking[]
-  owner       User?     @relation(fields: [ownerId], references: [id])
+  category     EventCategory @default(DROP_IN_CLASS)
+  startTime    String?
+  endTime      String?
+  venueName    String?
+  fee          String?
+  instructor   String?
+  recurrence   String?
+  battleRules  String?
+  prizes       String?
+  createdAt    DateTime      @default(now())
+  ownerId      String?
+  bookings     Booking[]
+  owner        User?         @relation(fields: [ownerId], references: [id])
 }
 
 model Booking {
@@ -77,32 +70,13 @@ model Booking {
   createdAt DateTime      @default(now())
   status    BookingStatus @default(ACTIVE)
   userId    String?
-  event     Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user      User?         @relation(fields: [userId], references: [id])
-}
-
-enum Role {
-  STUDENT
-  STUDIO_OWNER
-}
-
-// New enum for event/service categorization
-enum EventCategory {
-  DROP_IN_CLASS
-  DANCE_WORKSHOP
-  REGULAR_CLASS
-  BATTLE_COMPETITION
-}
-
-enum BookingStatus {
-  ACTIVE
-  CANCELLED
+  event     Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model StudioProfile {
   id           String   @id @default(cuid())
   ownerId      String   @unique
-  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   name         String
   addressLine1 String?
   addressLine2 String?
@@ -118,40 +92,39 @@ model StudioProfile {
   locationLng  Float
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model Conversation {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  // Conversation status and initiator (for private request flow)
-  status              ConversationStatus @default(ACTIVE)
-  requestInitiatorId  String?
-  participants ConversationParticipant[]
-  messages     Message[]
+  id                 String                    @id @default(cuid())
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  status             ConversationStatus        @default(ACTIVE)
+  requestInitiatorId String?
+  participants       ConversationParticipant[]
+  messages           Message[]
 }
 
 model ConversationParticipant {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
   userId         String
   lastReadAt     DateTime?
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
 }
 
 model Message {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
   senderId       String
   text           String
-  createdAt      DateTime @default(now())
-
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  attachments  Attachment[]
+  createdAt      DateTime     @default(now())
+  attachments    Attachment[]
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
   @@index([conversationId, createdAt(sort: Desc)])
 }
@@ -163,19 +136,33 @@ model Attachment {
   mimeType  String?
   size      Int?
   createdAt DateTime @default(now())
-
   message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@index([messageId])
 }
 
-// Add chat visibility enum for direct messaging preferences
+enum Role {
+  STUDENT
+  STUDIO_OWNER
+}
+
+enum EventCategory {
+  DROP_IN_CLASS
+  DANCE_WORKSHOP
+  REGULAR_CLASS
+  BATTLE_COMPETITION
+}
+
+enum BookingStatus {
+  ACTIVE
+  CANCELLED
+}
+
 enum ChatVisibility {
   PUBLIC
   PRIVATE
 }
 
-// Add conversation status enum to support private request gating
 enum ConversationStatus {
   ACTIVE
   REQUEST_PENDING
