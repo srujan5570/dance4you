@@ -297,7 +297,7 @@ export default function ChatPage() {
     esRef.current = null;
     
     let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
+    const maxReconnectAttempts = 60; // Allow more attempts since we're reconnecting every second
     let reconnectTimeout: NodeJS.Timeout | null = null;
     
     const connectEventSource = () => {
@@ -314,33 +314,48 @@ export default function ChatPage() {
         console.error('EventSource error:', err);
         es.close();
         
-        // Implement exponential backoff reconnection
+        // Implement 1-second interval reconnection
         if (!cancelled && reconnectAttempts < maxReconnectAttempts) {
           reconnectAttempts++;
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 30000); // Max 30 seconds
+          const delay = 1000; // Always 1 second
           console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})`);
           
-          reconnectTimeout = setTimeout(() => {
+          reconnectTimeoutRef.current = setTimeout(() => {
             if (!cancelled) {
               connectEventSource();
             }
           }, delay);
         } else if (reconnectAttempts >= maxReconnectAttempts) {
-          console.error('Max reconnection attempts reached. Please refresh the page.');
+          console.error('Max reconnection attempts reached after 60 seconds. Please refresh the page.');
         }
-      };
+       };
        
        es.addEventListener('message:new', (ev: MessageEvent) => {
          try {
            const msg: any = JSON.parse(ev.data);
-           setMessages((prev) => [...prev, { ...msg, isMine: msg?.sender?.id === me?.id }]);
+           
+           // Enhanced deduplication - check if message already exists in current messages
+           const messageExists = messages.some(m => m.id === msg.id);
+           if (messageExists) {
+             console.log('Duplicate message received, skipping:', msg.id);
+             return;
+           }
+           
+           setMessages((prev) => {
+             // Double-check for duplicates in the latest state
+             if (prev.some(m => m.id === msg.id)) return prev;
+             return [...prev, { ...msg, isMine: msg?.sender?.id === me?.id }];
+           });
+           
            setConversations((prev) => prev.map((c) => (c.id === activeId ? { ...c, messages: [msg] } : c)));
-           // Update cache with de-duplication (replace optimistic by clientId or skip if id exists)
+           
+           // Update cache with enhanced de-duplication
            const cachePrev = messageCacheRef.current[activeId] || [];
            const optimisticIdx = cachePrev.findIndex((p: any) => p?.clientId && p.clientId === msg.clientId);
            const serverIdx = cachePrev.findIndex((p: any) => p.id === msg.id);
            let cacheNext = cachePrev;
            const asMine = msg?.sender?.id === me?.id;
+           
            if (optimisticIdx !== -1) {
              cacheNext = [...cachePrev];
              cacheNext[optimisticIdx] = { ...msg, isMine: asMine };
@@ -348,11 +363,19 @@ export default function ChatPage() {
            } else if (serverIdx === -1) {
              cacheNext = [...cachePrev, { ...msg, isMine: asMine }];
            }
+           
            messageCacheRef.current[activeId] = cacheNext;
            // Do not downgrade existing delivered/read status; only set to 'sent' if not present
            setMessageStatus((prev) => { if (prev[msg.id]) return prev; return { ...prev, [msg.id]: 'sent' }; });
            setTimeout(() => { listRef.current?.scrollTo({ top: listRef.current!.scrollHeight, behavior: "smooth" }); }, 10);
-         } catch (e) { console.error(e); }
+         } catch (e) { console.error('Error handling new message:', e); }
+       });
+       
+       // Handle ping events to keep connection alive
+       es.addEventListener('ping', (ev: MessageEvent) => {
+         try {
+           console.log('Received ping, connection is alive');
+         } catch (e) { console.error('Error handling ping:', e); }
        });
      
        es.addEventListener('receipt', (ev: MessageEvent) => {
