@@ -58,7 +58,7 @@ export default function LoginPage() {
       </div>
 
       <section className="max-w-4xl mx-auto px-6 py-8">
-        <form onSubmit={submit} className="rounded-2xl border bg-white shadow-sm p-6 space-y-4">
+        <form onSubmit={submit} className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-md shadow-xl p-6 space-y-4">
           {status && (
             <div className={`rounded border px-3 py-2 text-sm ${status.toLowerCase().includes("failed") || status.toLowerCase().includes("error") ? "bg-red-50 text-red-700 border-red-300" : "bg-green-50 text-green-700 border-green-300"}`}>
               {status}
@@ -106,7 +106,7 @@ export default function LoginPage() {
             <label htmlFor="remember">Remember me (30 days)</label>
           </div>
 
-          <button className="mt-2 w-full rounded bg-[#f97316] text-white py-2 font-medium disabled:opacity-60" disabled={submitting || !canSubmit} type="submit">
+          <button className="mt-2 w-full rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white py-2 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60" disabled={submitting || !canSubmit} type="submit">
             {submitting ? "Logging in…" : `Log in as ${role === "STUDENT" ? "Dancer" : "Studio Owner"}`}
           </button>
 

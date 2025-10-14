@@ -7,6 +7,7 @@ async function main() {
     {
       title: "Bollywood Night",
       city: "Hyderabad",
+      state: "Telangana",
       date: "2025-10-12",
       style: "Indian",
       image: "/dance-bharatanatyam.svg",
@@ -16,6 +17,7 @@ async function main() {
     {
       title: "Hip Hop Jam",
       city: "Bengaluru",
+      state: "Karnataka",
       date: "2025-11-07",
       style: "Western",
       image: "/dance-hip-hop.svg",
@@ -24,6 +26,7 @@ async function main() {
     {
       title: "Bhangra Fiesta",
       city: "Delhi",
+      state: "Delhi",
       date: "2025-10-20",
       style: "Indian",
       image: "/dance-bhangra.svg",
@@ -32,6 +35,7 @@ async function main() {
     {
       title: "House Groove",
       city: "Mumbai",
+      state: "Maharashtra",
       date: "2025-12-02",
       style: "Western",
       image: "/dance-house.svg",

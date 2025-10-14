@@ -1,100 +1,250 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { getSavedLocation, getUserLocation, calculateDistance, saveUserLocation } from "@/lib/geolocation";
 
 export default function DanceWorkshopPage() {
+  // Dynamic workshops listing with filters
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filterMode, setFilterMode] = useState<"today" | "upcoming" | "latest">("today");
+
+  // Geolocation state
+  const [myLat, setMyLat] = useState<number | null>(null);
+  const [myLng, setMyLng] = useState<number | null>(null);
+  const [locError, setLocError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load saved location if available, otherwise try to fetch once
+    const saved = getSavedLocation();
+    if (saved) {
+      setMyLat(saved.latitude);
+      setMyLng(saved.longitude);
+    } else {
+      (async () => {
+        try {
+          const loc = await getUserLocation();
+          setMyLat(loc.latitude);
+          setMyLng(loc.longitude);
+          saveUserLocation(loc);
+        } catch (e: any) {
+          // Allow manual trigger; suppress hard error
+          console.warn("Geolocation blocked or failed:", e?.message || e);
+        }
+      })();
+    }
+  }, []);
+
+  async function requestMyLocation() {
+    setLocError(null);
+    try {
+      const loc = await getUserLocation();
+      setMyLat(loc.latitude);
+      setMyLng(loc.longitude);
+      saveUserLocation(loc);
+    } catch (e: any) {
+      setLocError(e?.message || "Failed to get your location");
+    }
+  }
+
+  // Server-side filters like Regular Classes
+  const [city, setCity] = useState<string>("");
+
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams();
+        params.set("category", "DANCE_WORKSHOP");
+        if (city.trim()) params.set("city", city.trim());
+        const url = `/api/events?${params.toString()}`;
+        const res = await fetch(url, { cache: "no-store" });
+        const data = await res.json();
+        setEvents(Array.isArray(data) ? data : []);
+      } catch (e) {
+        setError("Failed to load workshops");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [city]);
+
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }, []);
+
+  const workshops = useMemo(() => {
+    const onlyWorkshops = events.filter((ev) => ev.category === "DANCE_WORKSHOP");
+
+    // Augment with distance if possible
+    const augmented = onlyWorkshops.map((ev) => {
+      let _distanceKm: number | null = null;
+      const latNum = Number(ev.locationLat);
+      const lngNum = Number(ev.locationLng);
+      if (
+        typeof myLat === "number" &&
+        typeof myLng === "number" &&
+        !Number.isNaN(latNum) &&
+        !Number.isNaN(lngNum)
+      ) {
+        _distanceKm = calculateDistance(myLat, myLng, latNum, lngNum);
+      }
+      return { ...ev, _distanceKm };
+    });
+
+    let filtered = augmented;
+    if (filterMode === "today") {
+      filtered = augmented.filter((ev) => ev.date === todayStr);
+      // Sort by distance if available
+      filtered.sort((a, b) => {
+        const da = typeof a._distanceKm === "number" ? a._distanceKm : Infinity;
+        const db = typeof b._distanceKm === "number" ? b._distanceKm : Infinity;
+        return da - db;
+      });
+    } else if (filterMode === "upcoming") {
+      filtered = augmented.filter((ev) => typeof ev.date === "string" && ev.date > todayStr);
+      filtered.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    } else {
+      // latest: show all workshops sorted by createdAt desc
+      filtered = [...augmented].sort((a, b) => {
+        const aTime = new Date(a.createdAt).getTime();
+        const bTime = new Date(b.createdAt).getTime();
+        return bTime - aTime;
+      });
+    }
+
+    return filtered;
+  }, [events, filterMode, myLat, myLng, todayStr]);
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       {/* Gradient headline band */}
       <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
         <div className="max-w-6xl mx-auto px-6 py-5 text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-wide">
-            DANCE WORKSHOPS
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-wide">Dance Workshops</h1>
           <p className="mt-1 text-sm sm:text-base opacity-95">
-            Enhance your skills with expert-led workshops and special events
+            Browse workshop posts. Default view shows today&apos; workshops. Use filters for upcoming and latest.
           </p>
         </div>
       </div>
 
-      {/* Workshop content */}
-      <section className="max-w-6xl mx-auto px-6 py-10">
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="h-72 overflow-hidden">
-            <img 
-              src="https://tse2.mm.bing.net/th/id/OIP.CYx7GHjr9TfWvkrm7vtCAAHaEC?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3" 
-              alt="Dance Workshop Event" 
-              className="w-full h-full object-cover"
-            />
+      {/* Filters */}
+      <section className="max-w-6xl mx-auto px-6 py-6">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Filter mode buttons */}
+          <div className="inline-flex rounded-xl overflow-hidden border border-black/10 bg-white/80 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setFilterMode("today")}
+              className={`px-4 py-2 text-sm font-semibold transition cursor-pointer ${
+                filterMode === "today" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white" : "bg-white text-gray-800"
+              }`}
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterMode("upcoming")}
+              className={`px-4 py-2 text-sm font-semibold transition cursor-pointer ${
+                filterMode === "upcoming" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white" : "bg-white text-gray-800"
+              }`}
+            >
+              Upcoming
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterMode("latest")}
+              className={`px-4 py-2 text-sm font-semibold transition cursor-pointer ${
+                filterMode === "latest" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white" : "bg-white text-gray-800"
+              }`}
+            >
+              Latest
+            </button>
           </div>
-          <div className="p-8">
-            <h2 className="text-2xl font-bold text-[#f97316]">Dance Workshop Events</h2>
-            <p className="mt-3 text-gray-700">
-              Our intensive workshop events bring top industry professionals to teach specialized techniques, 
-              choreography, and performance skills. These one-time events are perfect for dancers looking to 
-              expand their repertoire and connect with the dance community.
-            </p>
-            
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-orange-50 p-5 rounded-lg">
-                <h3 className="font-semibold text-[#f97316]">What to Expect</h3>
-                <ul className="mt-3 space-y-2 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Expert instruction from industry professionals</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Focused training on specific dance styles or techniques</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Networking opportunities with fellow dancers</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Certificate of participation</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div className="bg-orange-50 p-5 rounded-lg">
-                <h3 className="font-semibold text-[#f97316]">Benefits</h3>
-                <ul className="mt-3 space-y-2 text-sm">
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Accelerated skill development</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Exposure to different teaching styles</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Inspiration for new choreography</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2 text-[#f97316] mt-0.5">•</span> 
-                    <span>Performance opportunities</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="mt-8 text-center">
-              <Link href="/events" className="inline-block">
-                <button className="rounded bg-black text-white px-6 py-3 border border-[#f97316] font-medium">
-                  View Upcoming Workshops
-                </button>
-              </Link>
-            </div>
-          </div>
+
+          {/* City input */}
+          <input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="City"
+            className="rounded-xl border border-black/10 bg-white/80 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+          />
+
+          {/* Group filter removed per request */}
+
+          {/* Geolocation */}
+          <button
+            type="button"
+            onClick={requestMyLocation}
+            className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-2 text-sm font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+          >
+            Use my location
+          </button>
+          {myLat != null && myLng != null && (
+            <div className="text-xs opacity-70">My location: {myLat.toFixed(4)}, {myLng.toFixed(4)}</div>
+          )}
+          {locError && <div className="text-xs text-red-600">{locError}</div>}
         </div>
+      </section>
+
+      {/* Results */}
+      <section className="max-w-6xl mx-auto px-6 pb-10">
+        {loading ? (
+          <div className="text-center text-sm opacity-70">Loading workshops</div>
+        ) : error ? (
+          <div className="text-center text-sm text-red-600">{error}</div>
+        ) : workshops.length === 0 ? (
+          <div className="text-center text-sm opacity-70">No workshops found for {filterMode}.</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {workshops.map((ev) => {
+              const poster = Array.isArray(ev.posterUrls) && ev.posterUrls.length > 0 ? ev.posterUrls[0] : ev.image || "/hero-placeholder.svg";
+              return (
+                <Link
+                  key={ev.id}
+                  href={`/events/${ev.id}`}
+                  className="block group rounded-2xl overflow-hidden border border-black/10 bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-xl transition cursor-pointer"
+                >
+                  <div
+                    className="relative h-40 transform transition-transform duration-300 group-hover:scale-105"
+                    style={{
+                      backgroundImage: `url(${poster})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                    aria-label={ev.title}
+                  >
+                    {/* Distance overlay */}
+                     {typeof ev._distanceKm === "number" && (
+                        <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {ev._distanceKm.toFixed(1)} km away
+                        </div>
+                      )}
+                    {/* Title overlay at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent text-white p-2">
+                      <h3 className="font-semibold text-sm line-clamp-2">{ev.title}</h3>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {/* Back to home */}
         <div className="mt-10 text-center">
           <Link href="/" className="text-[#f97316] hover:underline">
-            ← Back to Home
+            Back to Home
           </Link>
         </div>
       </section>

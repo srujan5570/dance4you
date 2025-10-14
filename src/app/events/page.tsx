@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -12,7 +13,7 @@ type EventItem = {
   title: string;
   city: string;
   date: string; // ISO yyyy-mm-dd
-  style: "Indian" | "Western";
+  // style removed; using date-based filters (Today, Upcoming, Latest)
   image: string; // public path to SVG
   locationLat?: number | null;
   locationLng?: number | null;
@@ -20,10 +21,12 @@ type EventItem = {
 };
 
 export default function EventsPage() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category") || "";
   const [q, setQ] = useState("");
-  const [city, setCity] = useState("");
   const [date, setDate] = useState("");
-  const [style, setStyle] = useState<"All" | "Indian" | "Western">("All");
+  const [filterMode, setFilterMode] = useState<"all" | "today" | "upcoming" | "latest">("all");
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   // Fetch events from API instead of static list
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -40,22 +43,63 @@ export default function EventsPage() {
   // Map view state
   const [showMap, setShowMap] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [selectedState, setSelectedState] = useState<string | null>(null);
 
-  // Get saved location from localStorage
+  // Helper to normalize city names from navbar (strip state, fix common aliases)
+  function cleanCity(name: string | null | undefined): string {
+    const raw = String(name || "").trim();
+    if (!raw) return "";
+    // Use the segment before comma (drop ", State" suffixes)
+    let base = raw.split(",")[0].trim();
+    // Normalize common alias
+    if (base.toLowerCase() === "bangalore") base = "Bengaluru";
+    return base;
+  }
+
+  // Get saved location or region from localStorage
   useEffect(() => {
-    const savedLocation = localStorage.getItem('userLocation');
-    if (savedLocation) {
-      try {
+    try {
+      const rawRegion = localStorage.getItem("userRegion");
+      const region = rawRegion ? JSON.parse(rawRegion) : null;
+      if (region?.city) setSelectedCity(cleanCity(region.city));
+      if (region?.state) setSelectedState(region.state);
+      if (rawRegion) {
+        const region = JSON.parse(rawRegion);
+        if (region?.city) setSelectedCity(cleanCity(region.city));
+        if (typeof region?.latitude === "number" && typeof region?.longitude === "number") {
+          setMyLat(region.latitude);
+          setMyLng(region.longitude);
+          return; // we have region coords, no need to request geolocation
+        }
+      }
+      // fallback to previously saved geolocation
+      const savedLocation = localStorage.getItem("userLocation");
+      if (savedLocation) {
         const { latitude, longitude } = JSON.parse(savedLocation);
         setMyLat(latitude);
         setMyLng(longitude);
-      } catch (err) {
-        console.error('Error parsing saved location:', err);
-        requestMyLocation(); // Fallback to requesting location
+      } else {
+        // request geolocation if nothing saved
+        requestMyLocation();
       }
-    } else {
-      requestMyLocation(); // No saved location, request it
+    } catch (err) {
+      console.error("Error initializing location/region:", err);
+      requestMyLocation();
     }
+  }, []);
+
+  // Listen for city selection changes from navbar/modal
+  useEffect(() => {
+    function onRegionChanged(e: Event) {
+      try {
+        const detail = (e as CustomEvent).detail as any;
+        if (detail?.city) setSelectedCity(cleanCity(detail.city));
+        if (detail?.state) setSelectedState(detail.state);
+      } catch {}
+    }
+    window.addEventListener("user-region-changed", onRegionChanged as EventListener);
+    return () => window.removeEventListener("user-region-changed", onRegionChanged as EventListener);
   }, []);
 
   // Request geolocation
@@ -98,7 +142,23 @@ export default function EventsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/events", { cache: "no-store" });
+        setLoading(true);
+        const normalizedCity = selectedCity ? cleanCity(selectedCity) : "";
+        const normalizedState = selectedState ? selectedState.trim() : "";
+        const params = new URLSearchParams();
+        if (normalizedCity) {
+          params.set("city", normalizedCity);
+          params.set("cityExact", "true");
+        }
+        if (normalizedState) {
+          params.set("state", normalizedState);
+          params.set("stateExact", "true");
+        }
+        if (categoryParam) {
+          params.set("category", categoryParam);
+        }
+        const url = `/api/events${params.toString() ? `?${params.toString()}` : ""}`;
+        const res = await fetch(url, { cache: "no-store" });
         const data = await res.json();
         setEvents(data || []);
       } catch {
@@ -107,61 +167,83 @@ export default function EventsPage() {
         setLoading(false);
       }
     })();
+  }, [selectedCity, selectedState, categoryParam]);
+
+  const todayStr = useMemo(() => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
   }, []);
 
   const filtered = useMemo(() => {
-    // Always compute distance if we have user location, regardless of nearMe setting
-    const hasUserLocation = typeof myLat === "number" && typeof myLng === "number";
+  // Always compute distance if we have user location, regardless of nearMe setting
+  const hasUserLocation = typeof myLat === "number" && typeof myLng === "number";
 
-    const augmented = events.map((ev) => {
-      let dist: number | null = null;
-      if (
-        hasUserLocation &&
-        typeof ev.locationLat === "number" &&
-        typeof ev.locationLng === "number"
-      ) {
-        dist = haversineKm(myLat!, myLng!, ev.locationLat, ev.locationLng);
-      }
-      return { ...ev, _distanceKm: dist };
-    });
+  const augmented = events.map((ev) => {
+  let dist: number | null = null;
+  if (
+  hasUserLocation &&
+  typeof ev.locationLat === "number" &&
+  typeof ev.locationLng === "number"
+  ) {
+  dist = haversineKm(myLat!, myLng!, ev.locationLat, ev.locationLng);
+  }
+  return { ...ev, _distanceKm: dist };
+  });
 
-    // Sort by distance if nearMe is enabled and we have user location
+  // Sort by distance if nearMe is enabled and we have user location
     const sorted = [...augmented];
-    if (hasUserLocation) {
+    if (hasUserLocation && nearMe) {
       sorted.sort((a, b) => {
         // Handle null distances (put them at the end)
         if (a._distanceKm === null && b._distanceKm === null) return 0;
         if (a._distanceKm === null) return 1;
         if (b._distanceKm === null) return -1;
         // Sort by distance
-        return a._distanceKm - b._distanceKm;
+        return (a._distanceKm as number) - (b._distanceKm as number);
       });
+    } else if (filterMode === "latest") {
+      // Sort by newest date when "Latest" is selected
+      sorted.sort((a, b) => b.date.localeCompare(a.date));
     }
 
-    const res = sorted.filter((ev) => {
-      const matchesQ = q ? ev.title.toLowerCase().includes(q.toLowerCase()) : true;
-      const matchesCity = city ? ev.city.toLowerCase().includes(city.toLowerCase()) : true;
-      const matchesDate = date ? ev.date === date : true;
-      const matchesStyle = style === "All" ? true : ev.style === style;
-      const withinRadius = !nearMe
-        ? true
-        : typeof ev._distanceKm === "number"
-        ? ev._distanceKm <= radiusKm
-        : false;
+  const res = sorted.filter((ev) => {
+  const matchesQ = q ? ev.title.toLowerCase().includes(q.toLowerCase()) : true;
+  // City filter removed; matchesCity no longer used
+  const matchesDate = date ? ev.date === date : true;
+  const matchesSelectedCity = selectedCity 
+    ? cleanCity(ev.city).toLowerCase() === cleanCity(selectedCity).toLowerCase()
+    : true;
+  const matchesSelectedState = selectedState
+    ? ((ev as any).state ? String((ev as any).state).trim().toLowerCase() === selectedState.trim().toLowerCase() : true)
+    : true;
+  const matchesFilterMode =
+    filterMode === "today"
+      ? ev.date === todayStr
+      : filterMode === "upcoming"
+      ? ev.date > todayStr
+      : /* all or latest (latest handled in sort) */ true;
+  const withinRadius = !nearMe || !hasUserLocation
+  ? true
+  : typeof ev._distanceKm === "number"
+  ? ev._distanceKm <= radiusKm
+  : true;
 
-      return matchesQ && matchesCity && matchesDate && matchesStyle && withinRadius;
-    });
+        return matchesQ && matchesDate && matchesFilterMode && matchesSelectedCity && matchesSelectedState && withinRadius;
+  });
 
-    if (nearMe) {
-      res.sort((a, b) => {
-        const da = typeof a._distanceKm === "number" ? a._distanceKm : Infinity;
-        const db = typeof b._distanceKm === "number" ? b._distanceKm : Infinity;
-        return da - db;
-      });
-    }
+  if (nearMe) {
+  res.sort((a, b) => {
+  const da = typeof a._distanceKm === "number" ? a._distanceKm : Infinity;
+  const db = typeof b._distanceKm === "number" ? b._distanceKm : Infinity;
+  return da - db;
+  });
+  }
 
-    return res;
-  }, [events, q, city, date, style, nearMe, radiusKm, myLat, myLng]);
+  return res;
+  }, [events, q, date, filterMode, nearMe, radiusKm, myLat, myLng, selectedCity, selectedState]);
 
   return (
     <main className="min-h-screen bg-background text-foreground font-sans">
@@ -169,7 +251,7 @@ export default function EventsPage() {
       <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
         <div className="max-w-6xl mx-auto px-6 py-6 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-wide">Find Dance Events</h2>
-          <p className="mt-1 text-sm sm:text-base opacity-95">Search by city, date, and style.</p>
+          <p className="mt-1 text-sm sm:text-base opacity-95">Search by title and date; filter by Today, Upcoming, or Latest.</p>
         </div>
       </div>
 
@@ -181,30 +263,35 @@ export default function EventsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search by title"
-            className="md:col-span-2 rounded border px-3 py-2"
+            className="md:col-span-1 rounded-xl border border-black/10 bg-white/60 px-2 py-1 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
           />
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="City"
-            className="rounded border px-3 py-2"
-          />
+          {/* City filter removed; relying on user location and navbar selection */}
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="rounded border px-3 py-2"
+            className="rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
           />
-          <select
-            value={style}
-            onChange={(e) => setStyle(e.target.value as "Indian" | "Western" | "All")}
-            className="rounded border px-3 py-2"
-          >
-            <option>All</option>
-            <option>Indian</option>
-            <option>Western</option>
-          </select>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer"
+            >
+              <span>{filterMode === "all" ? "All" : filterMode === "today" ? "Today" : filterMode === "upcoming" ? "Upcoming" : "Latest"}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-80" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {showFilterMenu && (
+              <div className="absolute mt-2 w-40 rounded-xl border border-black/10 bg-white z-10 shadow-lg">
+                <button type="button" onClick={() => { setFilterMode("all"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">All</button>
+                <button type="button" onClick={() => { setFilterMode("today"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Today</button>
+                <button type="button" onClick={() => { setFilterMode("upcoming"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Upcoming</button>
+                <button type="button" onClick={() => { setFilterMode("latest"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Latest</button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Near me controls */}
@@ -228,7 +315,7 @@ export default function EventsPage() {
             step={1}
             value={radiusKm}
             onChange={(e) => setRadiusKm(Math.max(1, Math.min(200, parseFloat(e.target.value) || 0)))}
-            className="rounded border px-3 py-2"
+            className="rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
             placeholder="Radius (km)"
             aria-label="Radius in kilometers"
             disabled={!nearMe}
@@ -236,7 +323,7 @@ export default function EventsPage() {
           <button
             type="button"
             onClick={requestMyLocation}
-            className="rounded border px-3 py-2 text-sm"
+            className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-2 text-sm font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0"
           >
             Use my location
           </button>
@@ -255,8 +342,8 @@ export default function EventsPage() {
           <button
             type="button"
             onClick={() => setShowMap(!showMap)}
-            className={`flex items-center gap-2 rounded px-4 py-2 text-sm font-medium ${
-              showMap ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-800"
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold shadow-lg transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${
+              showMap ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"
             }`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -276,7 +363,7 @@ export default function EventsPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center text-sm opacity-70">No events found.</div>
         ) : showMap ? (
-          <div className="h-[600px] w-full rounded-lg overflow-hidden border mb-6">
+          <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-black/10 shadow-lg ring-1 ring-white/20 mb-6">
             <EventsMap 
               events={filtered} 
               userLat={myLat} 
@@ -291,11 +378,12 @@ export default function EventsPage() {
               <Link
                 key={ev.id}
                 href={`/events/${ev.id}`}
-                className="block rounded-lg overflow-hidden border bg-white"
+                className="block group rounded-2xl overflow-hidden border border-black/10 bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-xl transition"
               >
                 <div
-                  className="h-40"
+                  className="w-full transform transition-transform duration-300 group-hover:scale-105"
                   style={{
+                    aspectRatio: "4 / 3",
                     backgroundImage: `url(${ev.image || "/hero-placeholder.svg"})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
@@ -307,9 +395,7 @@ export default function EventsPage() {
                   <h3 className="font-semibold text-sm">{ev.title}</h3>
                   <p className="text-xs opacity-70">{ev.city}</p>
                   <p className="text-xs opacity-70">{ev.date}</p>
-                  <span className="inline-block mt-2 text-xs px-2 py-1 rounded bg-[#fff2e5] text-[#d35400]">
-                    {ev.style}
-                  </span>
+                  {/* Removed style badge since filters are date-based */}
                   {typeof ev._distanceKm === "number" && (
                     <div className="mt-1 text-xs opacity-70">{ev._distanceKm.toFixed(1)} km away</div>
                   )}

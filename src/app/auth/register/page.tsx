@@ -57,7 +57,7 @@ export default function RegisterPage() {
       </div>
 
       <section className="max-w-4xl mx-auto px-6 py-8">
-        <form onSubmit={submit} className="rounded-2xl border bg-white shadow-sm p-6 space-y-4">
+        <form onSubmit={submit} className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-md shadow-xl p-6 space-y-4">
           {status && (
             <div className={`rounded border px-3 py-2 text-sm ${status.toLowerCase().includes("failed") || status.toLowerCase().includes("error") ? "bg-red-50 text-red-700 border-red-300" : "bg-green-50 text-green-700 border-green-300"}`}>
               {status}

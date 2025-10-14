@@ -173,7 +173,7 @@ export default function DashboardPage() {
       {/* Banner */}
       <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
         <div className="max-w-6xl mx-auto px-6 py-6">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-wide">Your Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-wide drop-shadow-sm sm:drop-shadow-lg">Your Dashboard</h1>
           <p className="mt-1 text-sm sm:text-base opacity-95">Manage your account, bookings, and events.</p>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
       <section className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Profile card */}
         <aside>
-          <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+          <div className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
             <div className="p-5">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-black/10 flex items-center justify-center">
@@ -199,10 +199,12 @@ export default function DashboardPage() {
               )}
               {isAuthed && (
                 <div className="mt-4 flex flex-wrap gap-3 text-xs">
-                  <Link href="/submit-event" className="underline">Submit event</Link>
+                  {session?.user?.role === "STUDIO_OWNER" && (
+                    <Link href="/submit-event" className="underline">Submit event</Link>
+                  )}
                   <Link href="/events" className="underline">Browse events</Link>
                   <Link href="/" className="underline">Home</Link>
-                  <button onClick={handleLogout} className="ml-auto bg-black text-white px-3 py-1 rounded hover:opacity-90">Log out</button>
+                  <button onClick={handleLogout} className="ml-auto rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-3 py-1 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0">Log out</button>
                 </div>
               )}
             </div>
@@ -210,20 +212,20 @@ export default function DashboardPage() {
 
           {/* Edit Profile */}
           {isAuthed && (
-            <div className="mt-6 rounded-2xl border bg-white shadow-sm overflow-hidden">
+            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
               <div className="p-5">
                 <h3 className="font-semibold text-sm">Edit Profile</h3>
                 <form onSubmit={saveProfile} className="mt-3 space-y-3">
                   <div>
                     <label className="text-xs opacity-70">Name</label>
-                    <input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+                    <input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div>
                     <label className="text-xs opacity-70">Email</label>
-                    <input value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} type="email" className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+                    <input value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} type="email" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div className="flex items-center gap-3 text-xs">
-                    <button disabled={profileSaving} className="bg-black text-white px-3 py-1 rounded hover:opacity-90 disabled:opacity-50">Save</button>
+                    <button disabled={profileSaving} className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-3 py-1 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50">Save</button>
                     {profileMsg && <span className="opacity-80">{profileMsg}</span>}
                   </div>
                 </form>
@@ -233,20 +235,20 @@ export default function DashboardPage() {
 
           {/* Change Password */}
           {isAuthed && (
-            <div className="mt-6 rounded-2xl border bg-white shadow-sm overflow-hidden">
+            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
               <div className="p-5">
                 <h3 className="font-semibold text-sm">Change Password</h3>
                 <form onSubmit={savePassword} className="mt-3 space-y-3">
                   <div>
                     <label className="text-xs opacity-70">Current password</label>
-                    <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} type="password" className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+                    <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} type="password" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div>
                     <label className="text-xs opacity-70">New password</label>
-                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} type="password" className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} type="password" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div className="flex items-center gap-3 text-xs">
-                    <button disabled={pwdSaving} className="bg-black text-white px-3 py-1 rounded hover:opacity-90 disabled:opacity-50">Change</button>
+                    <button disabled={pwdSaving} className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-3 py-1 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50">Change</button>
                     {pwdMsg && <span className="opacity-80">{pwdMsg}</span>}
                   </div>
                 </form>
@@ -257,15 +259,15 @@ export default function DashboardPage() {
 
         {/* Right: Bookings list */}
         <div className="md:col-span-2">
-          <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+          <div className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
             <div className="p-5">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-sm">Your Bookings</h2>
                 {/* Filters for user bookings */}
                 <div className="flex items-center gap-2 text-[11px]">
-                  <button aria-pressed={bookingsFilter === "ALL"} onClick={() => setBookingsFilter("ALL")} className={`px-2 py-0.5 rounded border ${bookingsFilter === "ALL" ? "bg-black text-white border-black" : "bg-white text-black"}`}>All</button>
-                  <button aria-pressed={bookingsFilter === "ACTIVE"} onClick={() => setBookingsFilter("ACTIVE")} className={`px-2 py-0.5 rounded border ${bookingsFilter === "ACTIVE" ? "bg-black text-white border-black" : "bg-white text-black"}`}>Active</button>
-                  <button aria-pressed={bookingsFilter === "CANCELLED"} onClick={() => setBookingsFilter("CANCELLED")} className={`px-2 py-0.5 rounded border ${bookingsFilter === "CANCELLED" ? "bg-black text-white border-black" : "bg-white text-black"}`}>Cancelled</button>
+                  <button aria-pressed={bookingsFilter === "ALL"} onClick={() => setBookingsFilter("ALL")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "ALL" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>All</button>
+                  <button aria-pressed={bookingsFilter === "ACTIVE"} onClick={() => setBookingsFilter("ACTIVE")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "ACTIVE" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>Active</button>
+                  <button aria-pressed={bookingsFilter === "CANCELLED"} onClick={() => setBookingsFilter("CANCELLED")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "CANCELLED" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>Cancelled</button>
                 </div>
               </div>
 
@@ -305,7 +307,7 @@ export default function DashboardPage() {
 
           {/* Owner tools */}
           {session?.user?.role === "STUDIO_OWNER" && (
-            <div className="mt-6 rounded-2xl border bg-white shadow-sm overflow-hidden">
+            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
               <div className="p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="font-semibold text-sm">Studio Owner Tools</h2>
@@ -346,9 +348,9 @@ export default function DashboardPage() {
                     <h3 className="font-semibold text-sm">Event Bookings</h3>
                     {/* Filters for owner bookings */}
                     <div className="flex items-center gap-2 text-[11px]">
-                      <button aria-pressed={ownerBookingsFilter === "ALL"} onClick={() => setOwnerBookingsFilter("ALL")} className={`px-2 py-0.5 rounded border ${ownerBookingsFilter === "ALL" ? "bg-black text-white border-black" : "bg-white text-black"}`}>All</button>
-                      <button aria-pressed={ownerBookingsFilter === "ACTIVE"} onClick={() => setOwnerBookingsFilter("ACTIVE")} className={`px-2 py-0.5 rounded border ${ownerBookingsFilter === "ACTIVE" ? "bg-black text-white border-black" : "bg-white text-black"}`}>Active</button>
-                      <button aria-pressed={ownerBookingsFilter === "CANCELLED"} onClick={() => setOwnerBookingsFilter("CANCELLED")} className={`px-2 py-0.5 rounded border ${ownerBookingsFilter === "CANCELLED" ? "bg-black text-white border-black" : "bg-white text-black"}`}>Cancelled</button>
+                      <button aria-pressed={ownerBookingsFilter === "ALL"} onClick={() => setOwnerBookingsFilter("ALL")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${ownerBookingsFilter === "ALL" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>All</button>
+                      <button aria-pressed={ownerBookingsFilter === "ACTIVE"} onClick={() => setOwnerBookingsFilter("ACTIVE")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${ownerBookingsFilter === "ACTIVE" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>Active</button>
+                      <button aria-pressed={ownerBookingsFilter === "CANCELLED"} onClick={() => setOwnerBookingsFilter("CANCELLED")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${ownerBookingsFilter === "CANCELLED" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>Cancelled</button>
                     </div>
                   </div>
                   {filteredOwnerBookings.length === 0 ? (

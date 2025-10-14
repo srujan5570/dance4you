@@ -69,6 +69,7 @@ export default function LearnLive() {
 
   const [category, setCategory] = useState<"Indian" | "Western">("Indian");
   const [modalDance, setModalDance] = useState<(typeof dances)[number] | null>(null);
+  const [activeTab, setActiveTab] = useState<"Indian" | "Western">("Indian");
   const filtered = dances.filter((d) => d.category === category);
 
   return (
@@ -91,21 +92,21 @@ export default function LearnLive() {
 
       {/* Category panel with cards */}
       <section className="max-w-6xl mx-auto px-6 py-8">
-        <div className="relative rounded-2xl bg-[#2b2b2b] p-6 md:p-8">
+        <div className="relative rounded-3xl bg-gradient-to-b from-orange-200 via-amber-100 to-orange-300 p-6 md:p-8 shadow-xl">
           {/* Tabs */}
           <div className="flex items-center justify-center gap-4 mb-6">
-            {(["Indian", "Western"] as const).map((tab) => (
+            {( ["Indian", "Western"] as const ).map((tab) => (
               <button
                 key={tab}
-                onClick={() => setCategory(tab)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded border transition-colors ${
-                  category === tab
-                    ? "bg-black text-white border-orange-500"
-                    : "bg-[#1f1f1f] text-gray-200 border-gray-600 hover:bg-black hover:text-white"
+                onClick={() => { setActiveTab(tab); setCategory(tab); }}
+                aria-pressed={activeTab === tab}
+                className={`px-4 py-2 rounded-full text-sm ${
+                  activeTab === tab
+                    ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-md"
+                    : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"
                 }`}
-                aria-pressed={category === tab}
               >
-                {tab} Dance <span className="text-orange-500">›</span>
+                {tab}
               </button>
             ))}
           </div>
@@ -115,16 +116,16 @@ export default function LearnLive() {
             {filtered.map((d) => (
               <div
                 key={d.name}
-                className="bg-[#1f1f1f] rounded-lg shadow-lg p-3 group cursor-pointer"
+                className="bg-white rounded-lg shadow-lg p-1 group cursor-pointer border-[0.5px] border-black/20 hover:border-orange-400 hover:shadow-xl hover:shadow-orange-200 transition"
                 onClick={() => setModalDance(d)}
               >
-                <div className="rounded-md overflow-hidden border border-black">
+                <div className="rounded-md overflow-hidden border-[0.05px] border-black/70">
                   <Image
                     src={d.img}
                     alt={d.name}
                     width={590}
                     height={560}
-                    className="w-full h-56 object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                    className="block w-full h-56 object-cover transition-transform duration-300 ease-out group-hover:scale-105"
                   />
                 </div>
                 <div className="bg-white text-black mt-3 rounded-md shadow p-3">
@@ -141,7 +142,7 @@ export default function LearnLive() {
 
           {/* Show More button */}
           <div className="mt-8 flex justify-center">
-            <button className="px-6 py-2 bg-black text-white border border-orange-500 rounded">Show More</button>
+            <button className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-6 py-2 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0">Show More</button>
           </div>
         </div>
       </section>
@@ -158,7 +159,7 @@ export default function LearnLive() {
             className="absolute inset-0 bg-black/60"
             onClick={() => setModalDance(null)}
           />
-          <div className="relative z-10 max-w-2xl w-[92%] md:w-[80%] bg-white rounded-lg shadow-xl overflow-hidden">
+          <div className="relative z-10 max-w-2xl w-[92%] md:w-[80%] rounded-3xl border border-black/10 bg-white/90 backdrop-blur-md shadow-xl overflow-hidden">
             <div className="flex flex-col md:flex-row">
               <div className="md:w-1/2">
                 <Image
@@ -176,11 +177,11 @@ export default function LearnLive() {
                 <div className="mt-5 flex justify-end gap-3">
                   <button
                     onClick={() => setModalDance(null)}
-                    className="px-4 py-2 rounded border border-gray-300"
+                    className="px-4 py-2 rounded-xl bg-white/80 border border-black/10 text-gray-800 hover:bg-white"
                   >
                     Close
                   </button>
-                  <Link href="/events" className="px-4 py-2 rounded bg-black text-white border border-orange-500 hover:opacity-90">
+                  <Link href="/events" className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-2 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0">
                     Explore Classes
                   </Link>
                 </div>

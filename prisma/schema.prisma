@@ -14,6 +14,8 @@ model User {
   name          String?
   passwordHash  String
   role          Role      @default(STUDENT)
+  // Add chat visibility setting (PUBLIC by default)
+  chatVisibility ChatVisibility @default(PUBLIC)
   createdAt     DateTime  @default(now())
   emailVerified Boolean   @default(false)
   otpExpires    DateTime?
@@ -21,15 +23,21 @@ model User {
   bookings      Booking[]
   events        Event[]
   studioProfile StudioProfile?
+  // Chat relations
+  conversationMemberships ConversationParticipant[]
+  messagesSent            Message[]
 }
 
 model Event {
   id          String    @id @default(cuid())
   title       String
   city        String
+  state       String?
   date        String
   style       String
   image       String
+  // Additional poster URLs for gallery previews
+  posterUrls  String[] @default([])
   description String?
   // Contact fields (visible only to booked customers in UI)
   contactPhone String?
@@ -40,6 +48,17 @@ model Event {
   // Precise map coordinates
   locationLat  Float?
   locationLng  Float?
+  // New categorization and time fields
+  category    EventCategory @default(DROP_IN_CLASS)
+  startTime   String?
+  endTime     String?
+  venueName   String?
+  // Add conditional fields for categories
+  fee         String?
+  instructor  String?
+  recurrence  String?
+  battleRules String?
+  prizes      String?
   createdAt   DateTime  @default(now())
   ownerId     String?
   bookings    Booking[]
@@ -63,6 +82,14 @@ model Booking {
 enum Role {
   STUDENT
   STUDIO_OWNER
+}
+
+// New enum for event/service categorization
+enum EventCategory {
+  DROP_IN_CLASS
+  DANCE_WORKSHOP
+  REGULAR_CLASS
+  BATTLE_COMPETITION
 }
 
 enum BookingStatus {
@@ -89,4 +116,66 @@ model StudioProfile {
   locationLng  Float
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // Conversation status and initiator (for private request flow)
+  status              ConversationStatus @default(ACTIVE)
+  requestInitiatorId  String?
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  lastReadAt     DateTime?
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  text           String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  attachments  Attachment[]
+
+  @@index([conversationId, createdAt(sort: Desc)])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  messageId String
+  url       String
+  mimeType  String?
+  size      Int?
+  createdAt DateTime @default(now())
+
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+// Add chat visibility enum for direct messaging preferences
+enum ChatVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+// Add conversation status enum to support private request gating
+enum ConversationStatus {
+  ACTIVE
+  REQUEST_PENDING
+  REQUEST_DECLINED
 }

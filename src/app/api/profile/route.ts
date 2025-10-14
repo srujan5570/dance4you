@@ -7,7 +7,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, email: true, role: true, name: true, createdAt: true },
+    select: { id: true, email: true, role: true, name: true, createdAt: true, chatVisibility: true },
   });
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   return NextResponse.json(user, { status: 200 });
@@ -19,8 +19,8 @@ export async function PATCH(req: Request) {
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
-    const { name, email } = body || {};
-    const data: { name?: string; email?: string } = {};
+    const { name, email, chatVisibility } = body || {};
+    const data: { name?: string; email?: string; chatVisibility?: "PUBLIC" | "PRIVATE" } = {};
 
     if (typeof name === "string") {
       const trimmed = name.trim();
@@ -40,14 +40,18 @@ export async function PATCH(req: Request) {
       data.email = trimmed;
     }
 
-    if (!data.name && !data.email) {
+    if (chatVisibility && (chatVisibility === "PUBLIC" || chatVisibility === "PRIVATE")) {
+      data.chatVisibility = chatVisibility;
+    }
+
+    if (!data.name && !data.email && !data.chatVisibility) {
       return NextResponse.json({ error: "No changes" }, { status: 400 });
     }
 
     const updated = await prisma.user.update({
       where: { id: session.userId },
       data,
-      select: { id: true, email: true, role: true, name: true },
+      select: { id: true, email: true, role: true, name: true, chatVisibility: true },
     });
 
     return NextResponse.json(updated, { status: 200 });
