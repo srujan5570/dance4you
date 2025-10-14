@@ -83,6 +83,7 @@ export default async function Home() {
               name: "Drop-In Class",
               desc: "Dance Your Heart Out",
               cta: { label: "Book Now", href: "/events?category=DROP_IN_CLASS" },
+              ownerHref: "/submit-event?category=DROP_IN_CLASS",
               readMoreHref: "/learn-live",
               img: "https://static.wixstatic.com/media/197520_31dbc12750c544149102ab9ca7587db6~mv2.jpg/v1/fill/w_224,h_226,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_auto/197520_31dbc12750c544149102ab9ca7587db6~mv2.jpg",
               icon: (
@@ -95,6 +96,7 @@ export default async function Home() {
               name: "Dance Workshop",
               desc: "Enhance Your Skills with Experts",
               cta: { label: "Book Now", href: "/events?category=DANCE_WORKSHOP" },
+              ownerHref: "/submit-event?category=DANCE_WORKSHOP",
               readMoreHref: "/dance-workshop",
               img: "https://static.wixstatic.com/media/197520_41e825beb8f64a41a4158773c61036f7~mv2.jpg/v1/fill/w_224,h_226,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_auto/197520_41e825beb8f64a41a4158773c61036f7~mv2.jpg",
               icon: (
@@ -107,6 +109,7 @@ export default async function Home() {
               name: "Regular Class",
               desc: "Express Yourself Through Dance",
               cta: { label: "Book Now", href: "/events?category=REGULAR_CLASS" },
+              ownerHref: "/submit-event?category=REGULAR_CLASS",
               readMoreHref: "/regular-classes",
               img: "https://static.wixstatic.com/media/11062b_5689103989fb4598829462af189dec4e~mv2.jpg/v1/fill/w_224,h_226,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_auto/11062b_5689103989fb4598829462af189dec4e~mv2.jpg",
               icon: (
@@ -119,6 +122,7 @@ export default async function Home() {
               name: "Battles/Competition",
               desc: "Bring Your Best Moves",
               cta: { label: "Book Now", href: "/events?category=BATTLE_COMPETITION" },
+              ownerHref: "/submit-event?category=BATTLE_COMPETITION",
               readMoreHref: "/learn-live",
               img: "https://static.wixstatic.com/media/11062b_9b788b37b9054864934bbb1e85592b06~mv2.jpg/v1/fill/w_224,h_226,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_auto/11062b_9b788b37b9054864934bbb1e85592b06~mv2.jpg",
               icon: (
@@ -152,7 +156,7 @@ export default async function Home() {
               <div className="p-5">
                 <p className="text-gray-600 mb-4">{s.desc}</p>
                 <div className="flex justify-between items-center">
-                  <Link href={isOwner ? "/submit-event" : s.cta.href} className="inline-block">
+                  <Link href={isOwner ? s.ownerHref : s.cta.href} className="inline-block">
                     <button className="relative inline-flex items-center justify-center px-6 py-2 overflow-hidden font-medium transition-all bg-[#167C36] rounded-md text-white group-hover:bg-[#f97316] duration-300">
                       <span className="relative">{isOwner ? `List your ${s.name}` : s.cta.label}</span>
                       <svg className="relative w-4 h-4 ml-2 transition-transform duration-500 ease-out group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

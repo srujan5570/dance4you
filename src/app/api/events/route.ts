@@ -18,15 +18,15 @@ export async function GET(req: Request) {
   }
   if (cityParam) {
     // Use broad contains for DB filtering; we'll apply exact match server-side if requested
-    where.city = { contains: cityParam, mode: "insensitive" }
+    where.city = { contains: cityParam }
   }
   if (stateParam) {
-    where.state = { contains: stateParam, mode: "insensitive" }
+    where.state = { contains: stateParam }
   }
   if (groupParam === "ADULT") {
-    where.title = { contains: "adult", mode: "insensitive" }
+    where.title = { contains: "adult" }
   } else if (groupParam === "CHILDREN") {
-    where.title = { contains: "children", mode: "insensitive" }
+    where.title = { contains: "children" }
   }
 
   // Public list should not include contact fields
@@ -53,6 +53,8 @@ export async function GET(req: Request) {
       endTime: true,
       venueName: true,
       posterUrls: true,
+      poster4x3: true,
+      posterDetail: true,
       // Per-category fields
       fee: true,
       instructor: true,
@@ -72,7 +74,13 @@ export async function GET(req: Request) {
     finalEvents = finalEvents.filter(e => (e as any).state && ((e as any).state as string).trim().toLowerCase() === stateParam.trim().toLowerCase())
   }
 
-  return NextResponse.json(finalEvents)
+  // Parse posterUrls JSON string back to array for frontend compatibility
+  const eventsWithParsedPosterUrls = finalEvents.map(event => ({
+    ...event,
+    posterUrls: event.posterUrls ? JSON.parse(event.posterUrls) : []
+  }))
+
+  return NextResponse.json(eventsWithParsedPosterUrls)
 }
 
 export async function POST(req: Request) {
@@ -86,7 +94,14 @@ export async function POST(req: Request) {
     if (!studio) {
       return NextResponse.json({ error: "Studio setup required: Please complete your studio profile before listing events." }, { status: 403 })
     }
-    const body = await req.json()
+    let body
+    try {
+      body = await req.json()
+    } catch (error) {
+      console.error("JSON parsing error:", error)
+      return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 })
+    }
+    
     const {
       title,
       city,
@@ -108,12 +123,16 @@ export async function POST(req: Request) {
       endTime,
       venueName,
       posterUrls,
+      poster4x3,
+      posterDetail,
       // Per-category data
       fee,
       instructor,
       recurrence,
       battleRules,
       prizes,
+      // Drop-in class enablement
+      enableDropInClass,
     } = body || {}
 
     if (!title || !city || !date || typeof style !== "string" || !String(style).trim()) {
@@ -153,47 +172,101 @@ export async function POST(req: Request) {
       )
     }
 
-    // posterUrls sanitation: ensure array of strings
+    // posterUrls sanitation: ensure array of strings, then convert to JSON string for SQLite
     const posterUrlsArray = Array.isArray(posterUrls)
       ? posterUrls.filter((p: unknown) => typeof p === "string")
       : []
+    const posterUrlsJson = JSON.stringify(posterUrlsArray)
 
-    const created = await prisma.event.create({
-      data: {
-        title,
-        city,
-        state,
-        date,
-        style,
-        image: image || "/hero-placeholder.svg",
-        description,
-        ownerId: session.userId,
-        // Contact fields
-        contactPhone,
-        contactEmail,
-        venueAddress,
-        venueMapUrl,
-        contactNotes,
-        // Coordinates
-        locationLat: latNum,
-        locationLng: lngNum,
-        // New rich listing fields
-        category,
-        startTime,
-        endTime: endTime || null,
-        venueName,
-        posterUrls: posterUrlsArray,
-        // Per-category fields
-        fee,
-        instructor,
-        recurrence,
-        battleRules,
-        prizes,
-      },
-    })
+    // Common event data
+    const eventData = {
+      title,
+      city,
+      state,
+      date,
+      style,
+      image: image || "/hero-placeholder.svg",
+      description,
+      ownerId: session.userId,
+      // Contact fields
+      contactPhone,
+      contactEmail,
+      venueAddress,
+      venueMapUrl,
+      contactNotes,
+      // Coordinates
+      locationLat: latNum,
+      locationLng: lngNum,
+      // New rich listing fields
+      startTime,
+      endTime: endTime || null,
+      venueName,
+      posterUrls: posterUrlsJson,
+      poster4x3: poster4x3 || null,
+      posterDetail: posterDetail || null,
+      // Per-category fields
+      fee,
+      instructor,
+      recurrence,
+      battleRules,
+      prizes,
+    }
 
-    return NextResponse.json(created, { status: 201 })
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
+    // Check if we need to create events in both categories
+    if (category === "REGULAR_CLASS" && enableDropInClass) {
+      // Create two events: one for Regular Class and one for Drop-In Class
+      const [regularClassEvent, dropInClassEvent] = await Promise.all([
+        prisma.event.create({
+          data: {
+            ...eventData,
+            category: "REGULAR_CLASS",
+          },
+        }),
+        prisma.event.create({
+          data: {
+            ...eventData,
+            category: "DROP_IN_CLASS",
+          },
+        }),
+      ])
+
+      return NextResponse.json({
+        regularClassEvent,
+        dropInClassEvent,
+        message: "Events created in both Regular Class and Drop-In Class categories"
+      }, { status: 201 })
+    } else {
+      // Create single event with specified category
+      const created = await prisma.event.create({
+        data: {
+          ...eventData,
+          category,
+        },
+      })
+
+      return NextResponse.json(created, { status: 201 })
+    }
+  } catch (error) {
+    console.error("Error creating event:", error)
+    
+    // Check if it's a JSON parsing error
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
+    }
+    
+    // Check if it's a database connection error
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as Error).message
+      if (errorMessage.includes("Can't reach database server")) {
+        return NextResponse.json({ 
+          error: "Database connection failed. Please try again later." 
+        }, { status: 503 })
+      }
+    }
+    
+    // Generic server error for other cases
+    return NextResponse.json({ 
+      error: "Internal server error. Please try again." 
+    }, { status: 500 })
   }
 }

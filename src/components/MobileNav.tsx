@@ -133,7 +133,7 @@ export default function MobileNav() {
                 Change City ({city})
               </button>
               <Link href="/" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Home</Link>
-              {session && session.authenticated && (
+              {session && session.authenticated && session.user?.role === "STUDENT" && (
                 <Link href="/chat" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Chat</Link>
               )}
               <Link href="/learn-live" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Learn &amp; Live</Link>

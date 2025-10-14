@@ -84,7 +84,7 @@ export default async function RootLayout({
                   <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
                 </Link>
               )}
-              {session && (
+              {session?.role === "STUDENT" && (
                 <Link href="/chat" className="relative px-2 py-1 overflow-hidden group">
                   <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Chat</span>
                   <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>

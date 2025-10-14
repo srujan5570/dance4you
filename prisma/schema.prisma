@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -36,8 +35,11 @@ model Event {
   date        String
   style       String
   image       String
-  // Additional poster URLs for gallery previews
-  posterUrls  String[] @default([])
+  // Additional poster URLs for gallery previews (JSON string for SQLite compatibility)
+  posterUrls  String? @default("[]")
+  // Dual poster system for different aspect ratios
+  poster4x3   String?  // 4:3 aspect ratio poster for event listings
+  posterDetail String? // Different aspect ratio poster for detail pages
   description String?
   // Contact fields (visible only to booked customers in UI)
   contactPhone String?

@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { validateImageAspectRatio, POSTER_ASPECT_RATIOS, isValidImageType, isValidFileSize } from "@/utils/imageValidation"
 // removed leaflet/react-leaflet imports to avoid SSR issues; MapPicker loads them client-side
 
 export default function SubmitEventPage() {
@@ -13,7 +14,7 @@ export default function SubmitEventPage() {
   const [country, setCountry] = useState("")
   const [date, setDate] = useState("")
   const [style, setStyle] = useState<string>("General")
-  const [image, setImage] = useState("")
+
   const [description, setDescription] = useState("")
   // Contact fields (collected but not publicly shown)
   const [contactPhone, setContactPhone] = useState("")
@@ -26,7 +27,9 @@ export default function SubmitEventPage() {
   const [locationLng, setLocationLng] = useState<string>("78.4867")
   // Category and timing
   type Category = "DROP_IN_CLASS" | "DANCE_WORKSHOP" | "REGULAR_CLASS" | "BATTLE_COMPETITION"
+  const ALL_CATEGORIES: Category[] = ["DROP_IN_CLASS", "DANCE_WORKSHOP", "REGULAR_CLASS", "BATTLE_COMPETITION"]
   const [category, setCategory] = useState<Category>("DROP_IN_CLASS")
+  const [lockedCategory, setLockedCategory] = useState<Category | null>(null)
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
   const [venueName, setVenueName] = useState("")
@@ -36,9 +39,16 @@ export default function SubmitEventPage() {
   const [recurrence, setRecurrence] = useState("")
   const [battleRules, setBattleRules] = useState("")
   const [prizes, setPrizes] = useState("")
-  // Poster gallery
+  // Drop-in class enablement for Regular Class
+  const [enableDropInClass, setEnableDropInClass] = useState(false)
+  // Poster gallery (legacy)
   const [posterUrls, setPosterUrls] = useState<string[]>([])
   const [posterUrlInput, setPosterUrlInput] = useState("")
+  // Dual poster system
+  const [poster4x3, setPoster4x3] = useState<string>("")
+  const [posterDetail, setPosterDetail] = useState<string>("")
+  const [poster4x3Error, setPoster4x3Error] = useState<string>("")
+  const [posterDetailError, setPosterDetailError] = useState<string>("")
   const [step, setStep] = useState<number>(1)
   const [uploading, setUploading] = useState(false)
   async function handlePosterUpload(files: FileList | null) {
@@ -56,6 +66,94 @@ export default function SubmitEventPage() {
       }
     } catch {
       setStatus("Upload failed")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // Handle 4:3 poster upload with aspect ratio validation
+  async function handlePoster4x3Upload(files: FileList | null) {
+    if (!files || files.length === 0) return
+    
+    const file = files[0]
+    setPoster4x3Error("")
+    
+    // Validate file type
+    if (!isValidImageType(file)) {
+      setPoster4x3Error("Please upload a valid image file (JPEG, PNG, or WebP)")
+      return
+    }
+    
+    // Validate file size
+    if (!isValidFileSize(file, 10)) {
+      setPoster4x3Error("File size must be less than 10MB")
+      return
+    }
+    
+    // Validate aspect ratio
+    const isValidRatio = await validateImageAspectRatio(file, POSTER_ASPECT_RATIOS.LISTING)
+    if (!isValidRatio) {
+      setPoster4x3Error("Image must have a 4:3 aspect ratio (e.g., 800x600, 1200x900)")
+      return
+    }
+    
+    try {
+      setUploading(true)
+      const form = new FormData()
+      form.append("files", file)
+      const res = await fetch("/api/upload", { method: "POST", body: form })
+      const data = await res.json()
+      if (res.ok && Array.isArray(data.urls) && data.urls.length > 0) {
+        setPoster4x3(data.urls[0])
+      } else {
+        setPoster4x3Error((data && data.error) || "Upload failed")
+      }
+    } catch {
+      setPoster4x3Error("Upload failed")
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // Handle detail poster upload with aspect ratio validation
+  async function handlePosterDetailUpload(files: FileList | null) {
+    if (!files || files.length === 0) return
+    
+    const file = files[0]
+    setPosterDetailError("")
+    
+    // Validate file type
+    if (!isValidImageType(file)) {
+      setPosterDetailError("Please upload a valid image file (JPEG, PNG, or WebP)")
+      return
+    }
+    
+    // Validate file size
+    if (!isValidFileSize(file, 10)) {
+      setPosterDetailError("File size must be less than 10MB")
+      return
+    }
+    
+    // Validate aspect ratio
+    const isValidRatio = await validateImageAspectRatio(file, POSTER_ASPECT_RATIOS.DETAIL)
+    if (!isValidRatio) {
+      setPosterDetailError("Image must have a 16:9 aspect ratio (e.g., 1920x1080, 1280x720)")
+      return
+    }
+    
+    try {
+      setUploading(true)
+      const form = new FormData()
+      form.append("files", file)
+      const res = await fetch("/api/upload", { method: "POST", body: form })
+      const data = await res.json()
+      if (res.ok && Array.isArray(data.urls) && data.urls.length > 0) {
+        setPosterDetail(data.urls[0])
+      } else {
+        setPosterDetailError((data && data.error) || "Upload failed")
+      }
+    } catch {
+      setPosterDetailError("Upload failed")
     } finally {
       setUploading(false)
     }
@@ -87,13 +185,15 @@ export default function SubmitEventPage() {
     }
   }, [locationLat, locationLng])
 
-  // Preselect category from URL query
+  // Preselect and lock category from URL query
   const searchParams = useSearchParams()
   useEffect(() => {
     const cat = searchParams?.get("category")
-    const allowed = ["DROP_IN_CLASS", "DANCE_WORKSHOP", "REGULAR_CLASS", "BATTLE_COMPETITION"]
-    if (cat && allowed.includes(cat)) {
+    if (cat && ALL_CATEGORIES.includes(cat as Category)) {
       setCategory(cat as Category)
+      setLockedCategory(cat as Category)
+    } else {
+      setLockedCategory(null)
     }
   }, [searchParams])
 
@@ -175,6 +275,7 @@ export default function SubmitEventPage() {
   const validRecurrence = useMemo(() => category !== "REGULAR_CLASS" || recurrence.trim().length >= 3, [category, recurrence])
   const validBattleRules = useMemo(() => category !== "BATTLE_COMPETITION" || battleRules.trim().length >= 3, [category, battleRules])
   const validPrizes = useMemo(() => category !== "BATTLE_COMPETITION" || prizes.trim().length >= 2, [category, prizes])
+  const validPosters = useMemo(() => !!poster4x3 && !!posterDetail, [poster4x3, posterDetail])
   // Wizard step gating
   const canStep1 = useMemo(() => validTitle && validDate && validCity, [validTitle, validDate, validCity])
   const canStep2 = useMemo(() => validCity && validState && validCoords, [validCity, validState, validCoords])
@@ -201,11 +302,12 @@ export default function SubmitEventPage() {
     if (!validRecurrence) out.push("Recurring schedule required for regular classes")
     if (!validBattleRules) out.push("Rules required for battles")
     if (!validPrizes) out.push("Prizes required for battles")
+    if (!validPosters) out.push("Both 4:3 and 16:9 posters are required")
     if (!(session?.authenticated)) out.push("Please log in")
     if (session?.user?.role !== "STUDIO_OWNER") out.push("Role must be Studio Owner")
     if (!studioProfile) out.push("Studio profile required")
     return out
-  }, [validTitle, validCity, validDate, validStyle, validCoords, validStartTime, validInstructor, validFee, validRecurrence, validBattleRules, validPrizes, session?.authenticated, session?.user?.role, studioProfile])
+  }, [validTitle, validCity, validDate, validStyle, validCoords, validStartTime, validInstructor, validFee, validRecurrence, validBattleRules, validPrizes, validPosters, session?.authenticated, session?.user?.role, studioProfile])
   const canSubmit = useMemo(
     () =>
       validTitle &&
@@ -218,12 +320,13 @@ export default function SubmitEventPage() {
       validRecurrence &&
       validBattleRules &&
       validPrizes &&
+      validPosters &&
       session?.authenticated &&
       session?.user?.role === "STUDIO_OWNER" &&
       !!studioProfile &&
       validState &&
       validCountry,
-    [validTitle, validCity, validDate, validCoords, validStartTime, validInstructor, validFee, validRecurrence, validBattleRules, validPrizes, session?.authenticated, session?.user?.role, studioProfile, validState, validCountry]
+    [validTitle, validCity, validDate, validCoords, validStartTime, validInstructor, validFee, validRecurrence, validBattleRules, validPrizes, validPosters, session?.authenticated, session?.user?.role, studioProfile, validState, validCountry]
   )
 
   async function submit() {
@@ -240,7 +343,6 @@ export default function SubmitEventPage() {
           state,
           date,
           style,
-          image,
           description,
           contactPhone,
           contactEmail,
@@ -255,11 +357,14 @@ export default function SubmitEventPage() {
           endTime,
           venueName,
           posterUrls,
+          poster4x3,
+          posterDetail,
           fee,
           instructor,
           recurrence,
           battleRules,
           prizes,
+          enableDropInClass,
         }),
       })
       if (!res.ok) {
@@ -295,7 +400,7 @@ export default function SubmitEventPage() {
     }
   }
 
-  const previewImage = (posterUrls[0] && posterUrls[0].trim()) ? posterUrls[0] : (image || "/hero-placeholder.svg")
+  const previewImage = poster4x3 || (posterUrls[0] && posterUrls[0].trim()) ? posterUrls[0] : "/hero-placeholder.svg"
 
   return (
     <main className="min-h-screen bg-background text-foreground font-sans">
@@ -436,20 +541,7 @@ export default function SubmitEventPage() {
 
                 {/* Step 3: Media & Description */}
                 <div className={step === 3 ? "" : "hidden"}>
-                {/* Image URL */}
-                <div>
-                  <label className="text-xs opacity-70 flex items-center gap-1" title="Optional image URL for the event poster (SVG recommended)">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path d="M4 3a2 2 0 00-2 2v9.5A2.5 2.5 0 004.5 17H16a2 2 0 002-2V7l-5-4H4z" /></svg>
-                    Image URL (optional)
-                  </label>
-                  <input
-                    className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
-                    placeholder="https://example.com/your-image.svg"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                  />
-                  <div className="text-[11px] opacity-70 mt-1">If omitted, we&apos;ll use a placeholder.</div>
-                </div>
+
 
                 {/* Description */}
                 <div>
@@ -466,36 +558,69 @@ export default function SubmitEventPage() {
                   />
                 </div>
 
-                {/* Posters */}
-                <div>
-                  <label className="text-xs opacity-70 flex items-center gap-1" title="Upload poster images (PNG, JPG, WEBP, SVG)">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path d="M4 3a2 2 0 00-2 2v9.5A2.5 2.5 0 004.5 17H16a2 2 0 002-2V7l-5-4H4z" /></svg>
-                    Posters
-                  </label>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) => handlePosterUpload(e.target.files)}
-                    className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
-                  />
-                  <div className="text-[11px] opacity-70 mt-1">You can upload multiple images. Max size 10MB each.</div>
-                  {uploading && <div className="text-[11px] text-blue-600 mt-1">Uploading…</div>}
-                  {posterUrls.length > 0 && (
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      {posterUrls.map((u, idx) => (
-                        <div key={u + idx} className="relative">
-                          <img src={u} alt={"Poster " + (idx + 1)} className="w-full aspect-[4/3] object-cover rounded-lg border border-black/10" />
+                {/* Dual Poster System */}
+                <div className="space-y-4">
+                  <div className="text-sm font-medium text-gray-700 mb-3">Event Posters (Required)</div>
+                  
+                  {/* 4:3 Poster for Listings */}
+                  <div>
+                    <label className="text-xs opacity-70 flex items-center gap-1" title="Upload 4:3 aspect ratio poster for event listings">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path d="M4 3a2 2 0 00-2 2v9.5A2.5 2.5 0 004.5 17H16a2 2 0 002-2V7l-5-4H4z" /></svg>
+                      Listing Poster (4:3 ratio)* 👉NOTE: Mobile number in poster is not allowed👈 
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handlePoster4x3Upload(e.target.files)}
+                      className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
+                    />
+                    <div className="text-[11px] opacity-70 mt-1">Required 4:3 aspect ratio (e.g., 800x600, 1200x900). Max size 10MB.</div>
+                    {poster4x3Error && <div className="text-[11px] text-red-600 mt-1">{poster4x3Error}</div>}
+                    {poster4x3 && (
+                      <div className="mt-2">
+                        <div className="relative inline-block max-w-full">
+                          <img src={poster4x3} alt="4:3 Poster Preview" className="w-full max-w-32 aspect-[4/3] object-cover rounded-lg border border-black/10" />
                           <button
                             type="button"
                             className="absolute top-1 right-1 text-xs bg-red-600 text-white rounded px-2 py-0.5"
-                            onClick={() => setPosterUrls((prev) => prev.filter((x) => x !== u))}
+                            onClick={() => setPoster4x3("")}
                             title="Remove"
                           >Remove</button>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 16:9 Poster for Detail Pages */}
+                  <div>
+                    <label className="text-xs opacity-70 flex items-center gap-1" title="Upload 16:9 aspect ratio poster for detail pages">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path d="M4 3a2 2 0 00-2 2v9.5A2.5 2.5 0 004.5 17H16a2 2 0 002-2V7l-5-4H4z" /></svg>
+                      Detail Poster (16:9 ratio)* Note: 👉Mobile number in poster is not allowed👈
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handlePosterDetailUpload(e.target.files)}
+                      className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
+                    />
+                    <div className="text-[11px] opacity-70 mt-1">Required 16:9 aspect ratio (e.g., 1920x1080, 1280x720). Max size 10MB.</div>
+                    {posterDetailError && <div className="text-[11px] text-red-600 mt-1">{posterDetailError}</div>}
+                    {posterDetail && (
+                      <div className="mt-2">
+                        <div className="relative inline-block max-w-full">
+                          <img src={posterDetail} alt="16:9 Poster Preview" className="w-full max-w-xs aspect-[16/9] object-cover rounded-lg border border-black/10" />
+                          <button
+                            type="button"
+                            className="absolute top-1 right-1 text-xs bg-red-600 text-white rounded px-2 py-0.5"
+                            onClick={() => setPosterDetail("")}
+                            title="Remove"
+                          >Remove</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {uploading && <div className="text-[11px] text-blue-600 mt-1">Uploading…</div>}
                 </div>
                 {/* Step 3 nav */}
                 <div className="flex items-center gap-2">
@@ -517,12 +642,22 @@ export default function SubmitEventPage() {
                       className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                       value={category}
                       onChange={(e) => setCategory(e.target.value as any)}
+                      disabled={!!lockedCategory}
+                      aria-disabled={!!lockedCategory}
+                      title={lockedCategory ? "Category locked by service selection" : undefined}
                     >
-                      <option value="DROP_IN_CLASS">Drop-In Class</option>
-                      <option value="DANCE_WORKSHOP">Dance Workshop</option>
-                      <option value="REGULAR_CLASS">Regular Class</option>
-                      <option value="BATTLE_COMPETITION">Battle/Competition</option>
+                      {(lockedCategory ? [lockedCategory] : ALL_CATEGORIES).map((c) => (
+                        <option key={c} value={c}>
+                          {c === "DROP_IN_CLASS" && "Drop-In Class"}
+                          {c === "DANCE_WORKSHOP" && "Dance Workshop"}
+                          {c === "REGULAR_CLASS" && "Regular Class"}
+                          {c === "BATTLE_COMPETITION" && "Battle/Competition"}
+                        </option>
+                      ))}
                     </select>
+                    {lockedCategory && (
+                      <div className="text-[11px] opacity-70 mt-1">Category preset from service selection.</div>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs opacity-70 flex items-center gap-1" title="Start time (HH:MM)">
@@ -574,11 +709,33 @@ export default function SubmitEventPage() {
                     </div>
                   )}
                   {category === "REGULAR_CLASS" && (
-                    <div>
-                      <label className="text-xs opacity-70 flex items-center gap-1">Recurring Schedule</label>
-                      <input className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition" value={recurrence} onChange={(e) => setRecurrence(e.target.value)} placeholder="e.g., Every Tue & Thu" />
-                      {!validRecurrence && (
-                        <div className="text-[11px] text-red-600 mt-1">Recurring schedule required.</div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs opacity-70 flex items-center gap-1">Recurring Schedule</label>
+                        <input className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition" value={recurrence} onChange={(e) => setRecurrence(e.target.value)} placeholder="e.g., Every Tue & Thu" />
+                        {!validRecurrence && (
+                          <div className="text-[11px] text-red-600 mt-1">Recurring schedule required.</div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="enableDropInClass"
+                          checked={enableDropInClass}
+                          onChange={(e) => setEnableDropInClass(e.target.checked)}
+                          className="rounded border-black/10 text-pink-500 focus:ring-pink-500"
+                        />
+                        <label htmlFor="enableDropInClass" className="text-xs opacity-70 flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+                            <path d="M10 2a6 6 0 00-6 6c0 4.418 6 10 6 10s6-5.582 6-10a6 6 0 00-6-6zm0 8a2 2 0 110-4 2 2 0 010 4z" />
+                          </svg>
+                          Enable Drop-In Class (show in both Regular Class and Drop-In Class categories)
+                        </label>
+                      </div>
+                      {enableDropInClass && (
+                        <div className="text-[11px] text-blue-600 mt-1 bg-blue-50 p-2 rounded-lg">
+                          ✓ This event will appear in both "Regular Class" and "Drop-In Class" categories
+                        </div>
                       )}
                     </div>
                   )}

@@ -42,7 +42,7 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
       <section
         className="relative w-full"
         style={{
-          backgroundImage: `url(${event.image || "/hero-placeholder.svg"})`,
+          backgroundImage: `url(${event.posterDetail || event.image || "/hero-placeholder.svg"})`,
           backgroundPosition: "center",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",

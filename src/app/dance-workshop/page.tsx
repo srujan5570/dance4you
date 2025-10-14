@@ -207,7 +207,7 @@ export default function DanceWorkshopPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {workshops.map((ev) => {
-              const poster = Array.isArray(ev.posterUrls) && ev.posterUrls.length > 0 ? ev.posterUrls[0] : ev.image || "/hero-placeholder.svg";
+              const poster = ev.poster4x3 || (Array.isArray(ev.posterUrls) && ev.posterUrls.length > 0 ? ev.posterUrls[0] : ev.image) || "/hero-placeholder.svg";
               return (
                 <Link
                   key={ev.id}

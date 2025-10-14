@@ -13,6 +13,7 @@ type EventItem = {
   title: string;
   city: string;
   date: string; // ISO yyyy-mm-dd
+  category: string; // Event category
   // style removed; using date-based filters (Today, Upcoming, Latest)
   image: string; // public path to SVG
   locationLat?: number | null;
@@ -27,6 +28,8 @@ export default function EventsPage() {
   const [date, setDate] = useState("");
   const [filterMode, setFilterMode] = useState<"all" | "today" | "upcoming" | "latest">("all");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [showCategoryMenu, setShowCategoryMenu] = useState(false);
 
   // Fetch events from API instead of static list
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -213,6 +216,7 @@ export default function EventsPage() {
   const matchesQ = q ? ev.title.toLowerCase().includes(q.toLowerCase()) : true;
   // City filter removed; matchesCity no longer used
   const matchesDate = date ? ev.date === date : true;
+  const matchesCategory = selectedCategory === "all" ? true : ev.category === selectedCategory;
   const matchesSelectedCity = selectedCity 
     ? cleanCity(ev.city).toLowerCase() === cleanCity(selectedCity).toLowerCase()
     : true;
@@ -231,7 +235,7 @@ export default function EventsPage() {
   ? ev._distanceKm <= radiusKm
   : true;
 
-        return matchesQ && matchesDate && matchesFilterMode && matchesSelectedCity && matchesSelectedState && withinRadius;
+        return matchesQ && matchesDate && matchesCategory && matchesFilterMode && matchesSelectedCity && matchesSelectedState && withinRadius;
   });
 
   if (nearMe) {
@@ -243,7 +247,7 @@ export default function EventsPage() {
   }
 
   return res;
-  }, [events, q, date, filterMode, nearMe, radiusKm, myLat, myLng, selectedCity, selectedState]);
+  }, [events, q, date, selectedCategory, filterMode, nearMe, radiusKm, myLat, myLng, selectedCity, selectedState]);
 
   return (
     <main className="min-h-screen bg-background text-foreground font-sans">
@@ -257,7 +261,7 @@ export default function EventsPage() {
 
       {/* Filters */}
       <section className="max-w-6xl mx-auto px-6 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
           <input
             type="text"
             value={q}
@@ -272,6 +276,33 @@ export default function EventsPage() {
             onChange={(e) => setDate(e.target.value)}
             className="rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
           />
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowCategoryMenu(!showCategoryMenu)}
+              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer w-full"
+            >
+              <span>
+                {selectedCategory === "all" ? "All Categories" : 
+                 selectedCategory === "DROP_IN_CLASS" ? "Drop-In Class" :
+                 selectedCategory === "DANCE_WORKSHOP" ? "Dance Workshop" :
+                 selectedCategory === "REGULAR_CLASS" ? "Regular Class" :
+                 selectedCategory === "BATTLE_COMPETITION" ? "Battle/Competition" : "All Categories"}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-80" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {showCategoryMenu && (
+              <div className="absolute mt-2 w-48 rounded-xl border border-black/10 bg-white z-10 shadow-lg">
+                <button type="button" onClick={() => { setSelectedCategory("all"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">All Categories</button>
+                <button type="button" onClick={() => { setSelectedCategory("DROP_IN_CLASS"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Drop-In Class</button>
+                <button type="button" onClick={() => { setSelectedCategory("DANCE_WORKSHOP"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Dance Workshop</button>
+                <button type="button" onClick={() => { setSelectedCategory("REGULAR_CLASS"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Regular Class</button>
+                <button type="button" onClick={() => { setSelectedCategory("BATTLE_COMPETITION"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Battle/Competition</button>
+              </div>
+            )}
+          </div>
           <div className="relative">
             <button
               type="button"
@@ -295,7 +326,7 @@ export default function EventsPage() {
         </div>
 
         {/* Near me controls */}
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
+        <div className="mt-3 grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -384,7 +415,7 @@ export default function EventsPage() {
                   className="w-full transform transition-transform duration-300 group-hover:scale-105"
                   style={{
                     aspectRatio: "4 / 3",
-                    backgroundImage: `url(${ev.image || "/hero-placeholder.svg"})`,
+                    backgroundImage: `url(${ev.poster4x3 || ev.image || "/hero-placeholder.svg"})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
