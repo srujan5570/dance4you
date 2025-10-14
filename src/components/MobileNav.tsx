@@ -9,6 +9,7 @@ export default function MobileNav() {
   const [session, setSession] = useState<{ authenticated: boolean; user?: { role?: string } } | null>(null);
   const [city, setCity] = useState<string>("Select City");
   const [mounted, setMounted] = useState(false);
+  const [hideSiteChrome, setHideSiteChrome] = useState(false);
 
   // Load session to determine role
   useEffect(() => {
@@ -24,6 +25,25 @@ export default function MobileNav() {
   // Mark component mounted for safe portal rendering
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Monitor hide-site-chrome class to prevent rendering when site chrome is hidden
+  useEffect(() => {
+    const checkSiteChrome = () => {
+      setHideSiteChrome(document.body.classList.contains("hide-site-chrome"));
+    };
+    
+    // Initial check
+    checkSiteChrome();
+    
+    // Create observer to watch for class changes
+    const observer = new MutationObserver(checkSiteChrome);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+    
+    return () => observer.disconnect();
   }, []);
 
   // Track saved city
@@ -75,6 +95,11 @@ export default function MobileNav() {
 
   function openCityModal() {
     window.dispatchEvent(new Event("open-city-selector"));
+  }
+
+  // Don't render when site chrome is hidden (e.g., chat page)
+  if (hideSiteChrome) {
+    return null;
   }
 
   return (
