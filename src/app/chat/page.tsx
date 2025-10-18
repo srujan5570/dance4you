@@ -974,20 +974,6 @@ export default function ChatPage() {
           <input
             value={composer}
             onChange={(e) => setComposer(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                // Check the same conditions as the send button
-                const isDisabled = uploading ||
-                  (!composer.trim() && pendingAttachments.length === 0) ||
-                  privateStatus.state === "declined" ||
-                  (privateStatus.state === "pending" && me && privateStatus.initiatorId && me.id !== privateStatus.initiatorId);
-                
-                if (!isDisabled) {
-                  onSend();
-                }
-              }
-            }}
             onFocus={() => activeId && fetch('/api/chat/stream', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversationId: activeId, typing: true }) })}
             onBlur={() => activeId && fetch('/api/chat/stream', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversationId: activeId, typing: false }) })}
             placeholder="Message..."

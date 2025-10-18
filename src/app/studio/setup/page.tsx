@@ -115,7 +115,7 @@ export default function StudioSetupPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-sans">
+    <main className="min-h-screen bg-background text-foreground dark:bg-gray-900 dark:text-gray-100 font-sans">
       <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <h2 className="text-2xl sm:text-3xl font-bold">Set up your Studio</h2>
@@ -124,76 +124,76 @@ export default function StudioSetupPage() {
       </div>
 
       <section className="max-w-4xl mx-auto px-6 py-8">
-        <form onSubmit={saveProfile} className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-md shadow-xl p-6 space-y-4">
+        <form onSubmit={saveProfile} className="rounded-3xl border border-black/10 bg-white/80 dark:bg-gray-800/90 dark:border-white/10 backdrop-blur-md shadow-xl p-6 space-y-4">
           {status && (
-            <div className={`rounded border px-3 py-2 text-sm ${status.toLowerCase().includes("failed") || status.toLowerCase().includes("error") ? "bg-red-50 text-red-700 border-red-300" : "bg-green-50 text-green-700 border-green-300"}`}>
+            <div className={`rounded border px-3 py-2 text-sm ${status.toLowerCase().includes("failed") || status.toLowerCase().includes("error") ? "bg-red-50 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800" : "bg-green-50 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"}`}>
               {status}
             </div>
           )}
 
           <div>
-            <label className="text-xs opacity-70" htmlFor="name">Studio Name*</label>
-            <input id="name" className={`mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition ${name && !validName ? "border-red-400" : ""}`} placeholder="e.g. Rhythm Dance Studio" value={name} onChange={(e) => setName(e.target.value)} />
+            <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="name">Studio Name*</label>
+            <input id="name" className={`mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition ${name && !validName ? "border-red-400 dark:border-red-500" : ""}`} placeholder="e.g. Rhythm Dance Studio" value={name} onChange={(e) => setName(e.target.value)} />
             {name && !validName && (
-              <div className="text-[11px] text-red-600 mt-1">Enter at least 2 characters.</div>
+              <div className="text-[11px] text-red-600 dark:text-red-400 mt-1">Enter at least 2 characters.</div>
             )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs opacity-70" htmlFor="address1">Address line 1</label>
-              <input id="address1" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} />
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="address1">Address line 1</label>
+              <input id="address1" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs opacity-70" htmlFor="address2">Address line 2</label>
-              <input id="address2" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="text-xs opacity-70" htmlFor="city">City</label>
-              <input id="city" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={city} onChange={(e) => setCity(e.target.value)} />
-            </div>
-            <div>
-              <label className="text-xs opacity-70" htmlFor="state">State</label>
-              <input id="state" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={stateNm} onChange={(e) => setStateNm(e.target.value)} />
-            </div>
-            <div>
-              <label className="text-xs opacity-70" htmlFor="postal">Postal code</label>
-              <input id="postal" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="address2">Address line 2</label>
+              <input id="address2" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs opacity-70" htmlFor="country">Country</label>
-              <input id="country" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={country} onChange={(e) => setCountry(e.target.value)} />
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="city">City</label>
+              <input id="city" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={city} onChange={(e) => setCity(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs opacity-70" htmlFor="phone">Phone</label>
-              <input id="phone" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="state">State</label>
+              <input id="state" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={stateNm} onChange={(e) => setStateNm(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs opacity-70" htmlFor="email">Contact email</label>
-              <input id="email" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="postal">Postal code</label>
+              <input id="postal" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="country">Country</label>
+              <input id="country" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={country} onChange={(e) => setCountry(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="phone">Phone</label>
+              <input id="phone" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="email">Contact email</label>
+              <input id="email" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs opacity-70" htmlFor="website">Website</label>
-              <input id="website" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={website} onChange={(e) => setWebsite(e.target.value)} />
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="website">Website</label>
+              <input id="website" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={website} onChange={(e) => setWebsite(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs opacity-70" htmlFor="description">Description</label>
-              <input id="description" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={description} onChange={(e) => setDescription(e.target.value)} />
+              <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300" htmlFor="description">Description</label>
+              <input id="description" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
           </div>
 
           <div>
-            <label className="text-xs opacity-70">Map location*</label>
-            <div className="mt-2 h-[300px] w-full rounded-2xl overflow-hidden border border-black/10 shadow-lg ring-1 ring-white/20 relative z-0">
+            <label className="text-xs opacity-70 dark:opacity-90 dark:text-gray-300">Map location*</label>
+            <div className="mt-2 h-[300px] w-full rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 shadow-lg ring-1 ring-white/20 relative z-0">
               <MapPicker
                 center={[12.9716, 77.5946]}
                 lat={lat}

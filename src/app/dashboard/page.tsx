@@ -169,9 +169,9 @@ export default function DashboardPage() {
   const isAuthed = useMemo(() => !!session?.authenticated, [session]);
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-sans">
+    <main className="min-h-screen bg-background text-foreground font-sans dark:bg-gray-900 dark:text-white">
       {/* Banner */}
-      <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
+      <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white dark:from-black dark:via-orange-900 dark:to-orange-700">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-wide drop-shadow-sm sm:drop-shadow-lg">Your Dashboard</h1>
           <p className="mt-1 text-sm sm:text-base opacity-95">Manage your account, bookings, and events.</p>
@@ -181,20 +181,20 @@ export default function DashboardPage() {
       <section className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Profile card */}
         <aside>
-          <div className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
+          <div className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden dark:bg-gray-800 dark:border-gray-700">
             <div className="p-5">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-black/10 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-gray-700 flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 opacity-70"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-3.33 0-10 1.67-10 5v1h20v-1c0-3.33-6.67-5-10-5Z" /></svg>
                 </div>
                 <div>
                   <div className="font-semibold text-sm">{session?.user?.name || session?.user?.email || "Guest"}</div>
-                  <div className="text-xs opacity-70">Role: {session?.user?.role || "—"}</div>
+                  <div className="text-xs opacity-70 dark:opacity-90">Role: {session?.user?.role || "—"}</div>
                 </div>
               </div>
               {!isAuthed && (
-                <div className="mt-3 rounded bg-[#fff7ed] text-[#9a3412] px-3 py-2 text-xs">
-                  Please <Link href="/auth/login" className="underline">log in</Link> or <Link href="/auth/register" className="underline">register</Link> to view your dashboard.
+                <div className="mt-3 rounded bg-[#fff7ed] text-[#9a3412] dark:bg-orange-900/30 dark:text-orange-200 px-3 py-2 text-xs">
+                  Please <Link href="/auth/login" className="underline hover:text-orange-600 dark:hover:text-orange-300">log in</Link> or <Link href="/auth/register" className="underline hover:text-orange-600 dark:hover:text-orange-300">register</Link> to view your dashboard.
                 </div>
               )}
               {isAuthed && (
@@ -212,21 +212,21 @@ export default function DashboardPage() {
 
           {/* Edit Profile */}
           {isAuthed && (
-            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
+            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 dark:bg-gray-800 dark:border-gray-700 backdrop-blur-lg shadow-xl overflow-hidden">
               <div className="p-5">
-                <h3 className="font-semibold text-sm">Edit Profile</h3>
+                <h3 className="font-semibold text-sm dark:text-white">Edit Profile</h3>
                 <form onSubmit={saveProfile} className="mt-3 space-y-3">
                   <div>
-                    <label className="text-xs opacity-70">Name</label>
-                    <input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
+                    <label className="text-xs opacity-70 dark:text-white dark:opacity-90">Name</label>
+                    <input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-gray-600 dark:text-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div>
-                    <label className="text-xs opacity-70">Email</label>
-                    <input value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} type="email" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
+                    <label className="text-xs opacity-70 dark:text-white dark:opacity-90">Email</label>
+                    <input value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} type="email" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-gray-600 dark:text-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div className="flex items-center gap-3 text-xs">
                     <button disabled={profileSaving} className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-3 py-1 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50">Save</button>
-                    {profileMsg && <span className="opacity-80">{profileMsg}</span>}
+                    {profileMsg && <span className="opacity-80 dark:text-white">{profileMsg}</span>}
                   </div>
                 </form>
               </div>
@@ -235,21 +235,21 @@ export default function DashboardPage() {
 
           {/* Change Password */}
           {isAuthed && (
-            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
+            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 dark:bg-gray-800 dark:border-gray-700 backdrop-blur-lg shadow-xl overflow-hidden">
               <div className="p-5">
-                <h3 className="font-semibold text-sm">Change Password</h3>
+                <h3 className="font-semibold text-sm dark:text-white">Change Password</h3>
                 <form onSubmit={savePassword} className="mt-3 space-y-3">
                   <div>
-                    <label className="text-xs opacity-70">Current password</label>
-                    <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} type="password" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
+                    <label className="text-xs opacity-70 dark:text-white dark:opacity-90">Current password</label>
+                    <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} type="password" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-gray-600 dark:text-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div>
-                    <label className="text-xs opacity-70">New password</label>
-                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} type="password" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
+                    <label className="text-xs opacity-70 dark:text-white dark:opacity-90">New password</label>
+                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} type="password" className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-gray-600 dark:text-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" />
                   </div>
                   <div className="flex items-center gap-3 text-xs">
                     <button disabled={pwdSaving} className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-3 py-1 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50">Change</button>
-                    {pwdMsg && <span className="opacity-80">{pwdMsg}</span>}
+                    {pwdMsg && <span className="opacity-80 dark:text-white">{pwdMsg}</span>}
                   </div>
                 </form>
               </div>
@@ -259,15 +259,15 @@ export default function DashboardPage() {
 
         {/* Right: Bookings list */}
         <div className="md:col-span-2">
-          <div className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
+          <div className="rounded-3xl border border-black/10 bg-white/80 dark:bg-gray-800 dark:border-gray-700 backdrop-blur-lg shadow-xl overflow-hidden">
             <div className="p-5">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-sm">Your Bookings</h2>
+                <h2 className="font-semibold text-sm dark:text-white">Your Bookings</h2>
                 {/* Filters for user bookings */}
                 <div className="flex items-center gap-2 text-[11px]">
-                  <button aria-pressed={bookingsFilter === "ALL"} onClick={() => setBookingsFilter("ALL")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "ALL" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>All</button>
-                  <button aria-pressed={bookingsFilter === "ACTIVE"} onClick={() => setBookingsFilter("ACTIVE")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "ACTIVE" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>Active</button>
-                  <button aria-pressed={bookingsFilter === "CANCELLED"} onClick={() => setBookingsFilter("CANCELLED")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "CANCELLED" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 hover:bg-white"}`}>Cancelled</button>
+                  <button aria-pressed={bookingsFilter === "ALL"} onClick={() => setBookingsFilter("ALL")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "ALL" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:bg-white dark:hover:bg-gray-600"}`}>All</button>
+                  <button aria-pressed={bookingsFilter === "ACTIVE"} onClick={() => setBookingsFilter("ACTIVE")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "ACTIVE" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:bg-white dark:hover:bg-gray-600"}`}>Active</button>
+                  <button aria-pressed={bookingsFilter === "CANCELLED"} onClick={() => setBookingsFilter("CANCELLED")} className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${bookingsFilter === "CANCELLED" ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-sm hover:from-orange-600 hover:via-pink-600 hover:to-purple-700" : "bg-white/80 border border-black/10 text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-white hover:bg-white dark:hover:bg-gray-600"}`}>Cancelled</button>
                 </div>
               </div>
 
@@ -276,7 +276,7 @@ export default function DashboardPage() {
               ) : error ? (
                 <div className="mt-4 text-sm text-red-600">{error}</div>
               ) : filteredBookings.length === 0 ? (
-                <div className="mt-4 text-sm opacity-70">No bookings yet.</div>
+                <div className="mt-4 text-sm opacity-70 dark:text-gray-300">No bookings yet.</div>
               ) : (
                 <ul className="mt-4 divide-y">
                   {filteredBookings.map((b) => (
@@ -307,12 +307,12 @@ export default function DashboardPage() {
 
           {/* Owner tools */}
           {session?.user?.role === "STUDIO_OWNER" && (
-            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
+            <div className="mt-6 rounded-3xl border border-black/10 bg-white/80 dark:bg-gray-800 dark:border-gray-700 backdrop-blur-lg shadow-xl overflow-hidden">
               <div className="p-5">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-sm">Studio Owner Tools</h2>
+                  <h2 className="font-semibold text-sm dark:text-white">Studio Owner Tools</h2>
                 </div>
-                <div className="mt-3 text-xs opacity-80">Submit and manage your events.</div>
+                <div className="mt-3 text-xs opacity-80 dark:text-gray-300">Submit and manage your events.</div>
                 <div className="mt-3 flex items-center gap-3 text-xs">
                   <Link href="/submit-event" className="underline">Submit event</Link>
                   <Link href="/studio/setup" className="underline">Edit studio details</Link>
@@ -333,7 +333,7 @@ export default function DashboardPage() {
                               <Link href={`/events/${ev.id}`} className="underline">View</Link>
                               {/* Keeping this as Link for internal navigation */}
                               
-                              <button onClick={() => deleteEvent(ev.id)} className="text-red-600 hover:underline">Delete</button>
+                              <button onClick={() => deleteEvent(ev.id)} className="text-red-600 hover:underline dark:text-red-400">Delete</button>
                             </div>
                           </div>
                         </li>

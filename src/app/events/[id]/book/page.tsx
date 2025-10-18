@@ -121,7 +121,7 @@ export default function BookEventPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left: Event Summary */}
           <aside className="md:col-span-1">
-            <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+            <div className="rounded-xl border bg-white dark:bg-gray-800 dark:border-white/10 dark:text-gray-100 shadow-sm overflow-hidden">
               {/* Event image */}
               <div
                 className="h-40 w-full"
@@ -134,27 +134,27 @@ export default function BookEventPage() {
                 aria-label={event?.title || "Event image"}
               />
               <div className="p-4">
-                <div className="text-sm opacity-80">Event</div>
+                <div className="text-sm opacity-80 dark:text-gray-300">Event</div>
                 <div className="font-semibold">{event?.title || "—"}</div>
-                <div className="mt-3 text-sm opacity-80">City</div>
+                <div className="mt-3 text-sm opacity-80 dark:text-gray-300">City</div>
                 <div className="font-medium">{event?.city || "—"}</div>
-                <div className="mt-3 text-sm opacity-80">Date</div>
+                <div className="mt-3 text-sm opacity-80 dark:text-gray-300">Date</div>
                 <div className="font-medium">{event?.date || "—"}</div>
                 {event?.style && (
                   <>
-                    <div className="mt-3 text-sm opacity-80">Style</div>
+                    <div className="mt-3 text-sm opacity-80 dark:text-gray-300">Style</div>
                     <div className="font-medium">{event.style}</div>
                   </>
                 )}
-                <Link href={`/events/${eventId}`} className="block mt-4 text-xs underline">
+                <Link href={`/events/${eventId}`} className="block mt-4 text-xs underline dark:text-gray-300">
                   View event details
                 </Link>
               </div>
             </div>
-            <div className="mt-6 rounded-xl border bg-white shadow-sm p-4">
+            <div className="mt-6 rounded-xl border bg-white dark:bg-gray-800 dark:border-white/10 dark:text-gray-100 shadow-sm p-4">
               <div className="text-sm font-semibold">Need help?</div>
-              <p className="text-xs opacity-80 mt-1">Contact us for assistance with your booking.</p>
-              <a href="mailto:itsforyou.dance4you@gmail.com" className="inline-block mt-2 text-xs text-[#167C36] underline">
+              <p className="text-xs opacity-80 dark:text-gray-300 mt-1">Contact us for assistance with your booking.</p>
+              <a href="mailto:itsforyou.dance4you@gmail.com" className="inline-block mt-2 text-xs text-[#167C36] dark:text-green-400 underline">
                 itsforyou.dance4you@gmail.com
               </a>
             </div>
@@ -188,14 +188,14 @@ export default function BookEventPage() {
               </div>
             )}
 
-            <form onSubmit={submit} className="rounded-xl border bg-white shadow-sm p-6">
+            <form onSubmit={submit} className="rounded-xl border bg-white dark:bg-gray-800 dark:border-white/10 dark:text-gray-100 shadow-sm p-6">
               <h3 className="text-lg font-semibold">Secure your spot</h3>
               {!session?.authenticated && (
-                <div className="mt-3 rounded border border-yellow-300 bg-yellow-50 text-yellow-700 px-3 py-2 text-sm">
+                <div className="mt-3 rounded border border-yellow-300 bg-yellow-50 text-yellow-700 px-3 py-2 text-sm dark:bg-yellow-900/30 dark:border-yellow-700/50 dark:text-yellow-200">
                   Please <Link href="/auth/login" className="underline">log in</Link> or <Link href="/auth/register" className="underline">register</Link> to book.
                 </div>
               )}
-              <p className="text-xs opacity-70 mt-1">Fill in your details and confirm your booking.</p>
+              <p className="text-xs opacity-70 dark:text-gray-300 mt-1">Fill in your details and confirm your booking.</p>
 
               {/* Status messages (errors/info) */}
               {status && (
@@ -262,9 +262,9 @@ export default function BookEventPage() {
                 </label>
                 <div className="mt-1 flex flex-wrap items-center gap-4 justify-between">
                   <div className="inline-flex items-center gap-2">
-                    <button type="button" onClick={decTickets} className="h-9 w-9 rounded border bg-white hover:bg-gray-50" aria-label="Decrease tickets">−</button>
+                    <button type="button" onClick={decTickets} className="h-9 w-9 rounded border bg-white dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600" aria-label="Decrease tickets">−</button>
                     <input
-                      className="w-20 text-center rounded border px-3 py-2"
+                      className="w-20 text-center rounded border px-3 py-2 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200"
                       placeholder="1"
                       type="number"
                       min={1}
@@ -272,7 +272,7 @@ export default function BookEventPage() {
                       onChange={(e) => setTickets(Math.max(1, Number(e.target.value) || 1))}
                       aria-describedby="ticket-help"
                     />
-                    <button type="button" onClick={incTickets} className="h-9 w-9 rounded border bg-white hover:bg-gray-50" aria-label="Increase tickets">+</button>
+                    <button type="button" onClick={incTickets} className="h-9 w-9 rounded border bg-white dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600" aria-label="Increase tickets">+</button>
                   </div>
 
                   {/* Price + Subtotal */}

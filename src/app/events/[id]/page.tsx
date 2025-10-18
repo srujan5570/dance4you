@@ -59,12 +59,12 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
           <p className="text-sm leading-6 opacity-85">{event.description}</p>
         </div>
         <aside className="md:col-span-1">
-          <div className="rounded border p-4 bg-white">
-            <div className="text-sm opacity-80">City</div>
+          <div className="rounded border p-4 bg-white dark:bg-gray-800 dark:border-white/10 dark:text-gray-100">
+            <div className="text-sm opacity-80 dark:text-gray-300">City</div>
             <div className="font-medium">{event.city}</div>
-            <div className="mt-3 text-sm opacity-80">Date</div>
+            <div className="mt-3 text-sm opacity-80 dark:text-gray-300">Date</div>
             <div className="font-medium">{event.date}</div>
-            <div className="mt-3 text-sm opacity-80">Style</div>
+            <div className="mt-3 text-sm opacity-80 dark:text-gray-300">Style</div>
             <div className="font-medium">{event.style}</div>
             <Link href={`/events/${event.id}/book`} className="block mt-4">
               <button className="w-full rounded bg-[#f97316] text-white py-2 font-medium">
@@ -74,25 +74,25 @@ export default async function EventDetail({ params }: { params: Promise<{ id: st
           </div>
 
           {/* Contact details (visible after booking or for owner) */}
-          <div className="mt-6 rounded border p-4 bg-white">
+          <div className="mt-6 rounded border p-4 bg-white dark:bg-gray-800 dark:border-white/10 dark:text-gray-100">
             <div className="font-semibold text-sm">Contact & Venue</div>
             {hasContacts ? (
               <div className="mt-2 space-y-2 text-sm">
                 {event.contactPhone && (
                   <div>
-                    <div className="opacity-80">Phone</div>
+                    <div className="opacity-80 dark:text-gray-300">Phone</div>
                     <div className="font-medium">{event.contactPhone}</div>
                   </div>
                 )}
                 {event.contactEmail && (
                   <div>
-                    <div className="opacity-80">Email</div>
+                    <div className="opacity-80 dark:text-gray-300">Email</div>
                     <a href={`mailto:${event.contactEmail}`} className="underline">{event.contactEmail}</a>
                   </div>
                 )}
                 {event.venueAddress && (
                   <div>
-                    <div className="opacity-80">Venue Address</div>
+                    <div className="opacity-80 dark:text-gray-300">Venue Address</div>
                     <div className="font-medium whitespace-pre-line">{event.venueAddress}</div>
                   </div>
                 )}

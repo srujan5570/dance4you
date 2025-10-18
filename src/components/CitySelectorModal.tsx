@@ -63,7 +63,7 @@ function CityIcon({ name }: { name: string }) {
     case "Mumbai":
       // Gateway of India
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M8 48h48v4H8z" fill="currentColor" />
           <path d="M16 48V34h8v14m16 0V34h8v14" stroke="currentColor" strokeWidth="2" fill="none" />
           <path d="M24 34c0-6 4-10 8-10s8 4 8 10" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -73,7 +73,7 @@ function CityIcon({ name }: { name: string }) {
     case "Delhi-NCR":
       // India Gate stylized
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M20 48h24v4H20z" fill="currentColor" />
           <path d="M24 48V24h16v24" stroke="currentColor" strokeWidth="2" fill="none" />
           <path d="M22 24h20l-4-6H26l-4 6z" fill="currentColor" />
@@ -83,7 +83,7 @@ function CityIcon({ name }: { name: string }) {
     case "Bengaluru":
       // Vidhana Soudha-esque dome
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M16 48h32v4H16z" fill="currentColor" />
           <path d="M20 48V36h24v12" stroke="currentColor" strokeWidth="2" fill="none" />
           <path d="M24 36c0-5 4-8 8-8s8 3 8 8" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -93,7 +93,7 @@ function CityIcon({ name }: { name: string }) {
     case "Hyderabad":
       // Charminar stylized
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M14 48h36v4H14z" fill="currentColor" />
           <path d="M18 48V30h8v18M38 48V30h8v18" stroke="currentColor" strokeWidth="2" fill="none" />
           <path d="M26 36h12v12H26z" fill="currentColor" />
@@ -103,7 +103,7 @@ function CityIcon({ name }: { name: string }) {
     case "Ahmedabad":
       // Sabarmati Ashram motif
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M12 48h40v4H12z" fill="currentColor" />
           <path d="M16 48V34l16-10 16 10v14" stroke="currentColor" strokeWidth="2" fill="none" />
           <path d="M24 40h8v8h-8zM36 40h8v8h-8z" fill="currentColor" />
@@ -112,7 +112,7 @@ function CityIcon({ name }: { name: string }) {
     case "Chandigarh":
       // Open Hand monument stylized
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M32 16c6 0 10 4 10 8s-4 6-8 6h-2v10h-4V30c-6-1-10-4-10-8s6-6 14-6z" fill="currentColor" />
           <path d="M30 40v12" stroke="currentColor" strokeWidth="2" />
         </svg>
@@ -120,7 +120,7 @@ function CityIcon({ name }: { name: string }) {
     case "Chennai":
       // Temple gopuram
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M16 48h32v4H16z" fill="currentColor" />
           <path d="M20 48V40h24v8M22 40v-6h20v6M24 34v-6h16v6M26 28v-6h12v6" stroke="currentColor" strokeWidth="2" fill="none" />
         </svg>
@@ -128,7 +128,7 @@ function CityIcon({ name }: { name: string }) {
     case "Pune":
       // Fort/arch
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M16 48h32v4H16z" fill="currentColor" />
           <path d="M20 48V34h8v6h8v-6h8v14" stroke="currentColor" strokeWidth="2" fill="none" />
           <path d="M28 34a4 4 0 0 1 8 0" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -137,7 +137,7 @@ function CityIcon({ name }: { name: string }) {
     case "Kolkata":
       // Victoria Memorial dome
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M14 48h36v4H14z" fill="currentColor" />
           <path d="M18 48V36h28v12" stroke="currentColor" strokeWidth="2" fill="none" />
           <path d="M24 36c0-5 4-8 8-8s8 3 8 8" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -147,14 +147,14 @@ function CityIcon({ name }: { name: string }) {
     case "Kochi":
       // Chinese fishing nets
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-8 w-8 text-black/60 dark:text-white/80">
           <path d="M12 48h40v4H12z" fill="currentColor" />
           <path d="M16 48l12-20 12 20M28 28l16-6" stroke="currentColor" strokeWidth="2" fill="none" />
         </svg>
       );
     default:
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-8 w-8 text-black/60" fill="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-8 w-8 text-black/60 dark:text-white/80" fill="currentColor">
           <path d="M12 3c4.971 0 9 4.029 9 9s-4.029 9-9 9-9-4.029-9-9 4.029-9 9-9Z" />
         </svg>
       );
@@ -329,12 +329,12 @@ export default function CitySelectorModal() {
       <div className="absolute inset-0 bg-black/40" />
 
       {/* modal */}
-      <div className="absolute left-1/2 top-20 -translate-x-1/2 w-[95%] sm:w-[820px] max-h-[80vh] rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col">
-        <div className="p-4 border-b flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 text-[#f97316]"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20ZM11 6h2v6h-2V6Zm0 8h2v2h-2v-2Z"/></svg>
-          <div className="font-semibold">Select your city</div>
-          <button className="ml-auto p-2 cursor-pointer hover:opacity-80" aria-label="Close" onClick={() => setOpen(false)}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M6.225 4.811 4.811 6.225 10.586 12l-5.775 5.775 1.414 1.414L12 13.414l5.775 5.775 1.414-1.414L13.414 12l5.775-5.775-1.414-1.414L12 10.586z"/></svg>
+      <div className="absolute left-1/2 top-20 -translate-x-1/2 w-[95%] sm:w-[820px] max-h-[80vh] rounded-2xl bg-white dark:bg-gray-800 shadow-2xl overflow-hidden flex flex-col">
+        <div className="p-4 border-b dark:border-gray-700 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 text-[#f97316]"><path d="M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20ZM11 6h2v6h-2V6Zm0 8h2v2h-2v-2Z"/></svg>
+          <div className="font-semibold dark:text-white">Select your city</div>
+          <button className="ml-auto p-2 cursor-pointer hover:opacity-80 dark:hover:bg-gray-700 rounded-lg" aria-label="Close" onClick={() => setOpen(false)}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 dark:text-white"><path d="M6.225 4.811 4.811 6.225 10.586 12l-5.775 5.775 1.414 1.414L12 13.414l5.775 5.775 1.414-1.414L13.414 12l5.775-5.775-1.414-1.414L12 10.586z"/></svg>
           </button>
         </div>
 
@@ -347,23 +347,23 @@ export default function CitySelectorModal() {
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") onSearch(); }}
                 placeholder="Search for your city"
-                className="w-full rounded-xl border border-black/10 bg-white/60 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full rounded-xl border border-black/10 dark:border-gray-700 bg-white/60 dark:bg-gray-700 dark:text-white px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:placeholder-gray-400"
               />
               {search && (
                 <button
                   onClick={() => { setSearch(""); setSuggestions([]); setSearchResults([]); }}
                   aria-label="Clear"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-gray-600 hover:bg-black/5 cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-gray-600 cursor-pointer"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M6.225 4.811 4.811 6.225 10.586 12l-5.775 5.775 1.414 1.414L12 13.414l5.775 5.775 1.414-1.414L13.414 12l5.775-5.775-1.414-1.414L12 10.586z"/></svg>
                 </button>
               )}
               {suggestions.length > 0 && (
-                <div className="absolute z-10 left-0 right-0 mt-2 rounded-xl border border-black/10 bg-white shadow-lg">
+                <div className="absolute z-10 left-0 right-0 mt-2 rounded-xl border border-black/10 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
                   <ul className="py-1">
                     {suggestions.map((s) => (
                       <li key={`${s.city}-${s.state || ""}`}>
-                        <button onClick={() => chooseCity(s.city)} className="w-full text-left px-3 py-2 text-sm hover:bg-black/5 cursor-pointer">
+                        <button onClick={() => chooseCity(s.city)} className="w-full text-left px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-gray-700 dark:text-white cursor-pointer">
                           {s.city}{s.state ? `, ${s.state}` : ""}
                         </button>
                       </li>
@@ -376,8 +376,8 @@ export default function CitySelectorModal() {
 
           {/* detect my location */}
           <div className="mt-3">
-            <button onClick={onDetect} disabled={detecting} className="inline-flex items-center gap-2 text-[#f97316] hover:text-[#ea580c] text-sm font-medium cursor-pointer disabled:opacity-60">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M12 2a1 1 0 0 1 1 1v2.062a7 7 0 0 1 6.938 6.938H22a1 1 0 1 1 0 2h-2.062A7 7 0 0 1 13 18.938V21a1 1 0 1 1-2 0v-2.062A7 7 0 0 1 4.062 12H2a1 1 0 1 1 0-2h2.062A7 7 0 0 1 11 5.062V3a1 1 0 0 1 1-1Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z"/></svg>
+            <button onClick={onDetect} disabled={detecting} className="inline-flex items-center gap-2 text-[#f97316] dark:text-orange-400 hover:text-[#ea580c] dark:hover:text-orange-300 text-sm font-medium cursor-pointer disabled:opacity-60">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M12 2a1 1 0 0 1 1 1v2.062a7 7 0 0 1 6.938 6.938H22a1 1 0 1 1 0 2h-2.062A7 7 0 0 1 13 18.938V21a1 1 0 1 1-2 0v-2.062A7 7 0 0 1 4.062 12H2a1 1 0 1 1 0-2h2.062A7 7 0 0 1 11 5.062V3a1 1 0 0 1 1-1Zm0 5a5 5 0 1 0 0 10a5 5 0 0 0 0-10Z"/></svg>
               Detect my location
               {detecting && (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none">
@@ -386,17 +386,17 @@ export default function CitySelectorModal() {
                 </svg>
               )}
             </button>
-            {error && <div className="mt-2 text-xs text-red-600">{error}</div>}
+            {error && <div className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</div>}
           </div>
 
           {/* search results */}
           {searchResults.length > 0 && (
             <div className="mt-4">
-              <div className="text-xs opacity-70 mb-2">Search results</div>
+              <div className="text-xs opacity-70 mb-2 dark:text-gray-400">Search results</div>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {searchResults.map((item, idx) => (
                   <li key={idx}>
-                    <button onClick={() => chooseSearchResult(item)} className="w-full text-left px-3 py-2 rounded-lg border border-black/10 hover:bg-black/5 text-sm">
+                    <button onClick={() => chooseSearchResult(item)} className="w-full text-left px-3 py-2 rounded-lg border border-black/10 dark:border-gray-700 hover:bg-black/5 dark:hover:bg-gray-700 text-sm dark:text-white">
                       {item.display_name}
                     </button>
                   </li>
@@ -407,16 +407,16 @@ export default function CitySelectorModal() {
 
           {/* popular cities */}
           <div className="mt-6">
-            <div className="text-center font-semibold">Popular Cities</div>
+            <div className="text-center font-semibold dark:text-white">Popular Cities</div>
             <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-4">
               {filteredPopular.map((c) => {
                 const isSelected = selectedCity?.toLowerCase() === c.label.toLowerCase();
                 return (
-                  <button key={c.label} onClick={() => chooseCity(c.label)} className={`group flex flex-col items-center p-3 rounded-xl border cursor-pointer ${isSelected ? "border-[#167C36] bg-[#167C36]/5" : "border-black/10 hover:border-[#f97316] hover:bg-black/5"}`}>
-                    <div className={`h-12 w-12 rounded-full flex items-center justify-center mb-2 ${isSelected ? "bg-[#167C36]/10 ring-2 ring-[#167C36]" : "bg-black/5"}`}>
+                  <button key={c.label} onClick={() => chooseCity(c.label)} className={`group flex flex-col items-center p-3 rounded-xl border cursor-pointer ${isSelected ? "border-[#167C36] bg-[#167C36]/5" : "border-black/10 dark:border-white/20 hover:border-[#f97316] hover:bg-black/5 dark:hover:bg-white/10"}`}>
+                    <div className={`h-12 w-12 rounded-full flex items-center justify-center mb-2 ${isSelected ? "bg-[#167C36]/10 ring-2 ring-[#167C36]" : "bg-black/5 dark:bg-white/10"}`}>
                       <CityIcon name={c.label} />
                     </div>
-                    <div className={`text-sm ${isSelected ? "text-[#167C36] font-semibold" : ""}`}>{c.label}</div>
+                    <div className={`text-sm ${isSelected ? "text-[#167C36] dark:text-[#4ade80] font-semibold" : "dark:text-white"}`}>{c.label}</div>
                   </button>
                 );
               })}
@@ -444,16 +444,16 @@ function AllCitiesToggle({ onSelect, selectedCity }: { onSelect: (label: string)
   return (
     <div>
       {!show ? (
-        <button className="text-[#f97316] text-sm" onClick={() => setShow(true)}>View All Cities</button>
+        <button className="text-[#f97316] dark:text-orange-400 text-sm" onClick={() => setShow(true)}>View All Cities</button>
       ) : (
         <div>
-          <div className="text-center font-medium mb-3">Other Cities</div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-gray-700">
+          <div className="text-center font-medium mb-3 dark:text-white">Other Cities</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-gray-700 dark:text-gray-300">
             {OTHER.map((name) => (
-              <button key={name} onClick={() => onSelect(name)} className={`text-left hover:text-[#f97316] cursor-pointer ${selectedCity && selectedCity.toLowerCase() === name.toLowerCase() ? "text-[#167C36] font-semibold" : ""}`}>{name}</button>
+              <button key={name} onClick={() => onSelect(name)} className={`text-left hover:text-[#f97316] dark:hover:text-orange-400 cursor-pointer ${selectedCity && selectedCity.toLowerCase() === name.toLowerCase() ? "text-[#167C36] dark:text-[#4ade80] font-semibold" : ""}`}>{name}</button>
             ))}
           </div>
-          <button className="mt-3 text-[#f97316] text-sm" onClick={() => setShow(false)}>Hide all cities</button>
+          <button className="mt-3 text-[#f97316] dark:text-orange-400 text-sm" onClick={() => setShow(false)}>Hide all cities</button>
         </div>
       )}
     </div>

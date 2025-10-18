@@ -267,7 +267,7 @@ export default function EventsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search by title"
-            className="sm:col-span-1 md:col-span-2 rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
+            className="sm:col-span-1 md:col-span-2 rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
           />
           {/* City filter removed; relying on user location and navbar selection */}
           <input
@@ -275,13 +275,13 @@ export default function EventsPage() {
             value={date}
             onChange={(e) => setDate(e.target.value)}
             placeholder="Select date"
-            className="sm:col-span-1 md:col-span-1 rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
+            className="sm:col-span-1 md:col-span-1 rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
           />
           <div className="relative sm:col-span-1 md:col-span-2">
             <button
               type="button"
               onClick={() => setShowCategoryMenu(!showCategoryMenu)}
-              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer w-full min-h-[40px]"
+              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white dark:hover:bg-gray-600 transition cursor-pointer w-full min-h-[40px]"
             >
               <span>
                 {selectedCategory === "all" ? "All Categories" : 
@@ -295,12 +295,12 @@ export default function EventsPage() {
               </svg>
             </button>
             {showCategoryMenu && (
-              <div className="absolute mt-2 w-48 rounded-xl border border-black/10 bg-white z-10 shadow-lg">
-                <button type="button" onClick={() => { setSelectedCategory("all"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">All Categories</button>
-                <button type="button" onClick={() => { setSelectedCategory("DROP_IN_CLASS"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Drop-In Class</button>
-                <button type="button" onClick={() => { setSelectedCategory("DANCE_WORKSHOP"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Dance Workshop</button>
-                <button type="button" onClick={() => { setSelectedCategory("REGULAR_CLASS"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Regular Class</button>
-                <button type="button" onClick={() => { setSelectedCategory("BATTLE_COMPETITION"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Battle/Competition</button>
+              <div className="absolute mt-2 w-48 rounded-xl border border-black/10 bg-white dark:bg-gray-800 dark:border-white/10 dark:text-gray-100 z-10 shadow-lg">
+                <button type="button" onClick={() => { setSelectedCategory("all"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">All Categories</button>
+                <button type="button" onClick={() => { setSelectedCategory("DROP_IN_CLASS"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">Drop-In Class</button>
+                <button type="button" onClick={() => { setSelectedCategory("DANCE_WORKSHOP"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">Dance Workshop</button>
+                <button type="button" onClick={() => { setSelectedCategory("REGULAR_CLASS"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">Regular Class</button>
+                <button type="button" onClick={() => { setSelectedCategory("BATTLE_COMPETITION"); setShowCategoryMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">Battle/Competition</button>
               </div>
             )}
           </div>
@@ -308,7 +308,7 @@ export default function EventsPage() {
             <button
               type="button"
               onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white transition cursor-pointer w-full min-h-[40px]"
+              className="flex items-center justify-between gap-2 rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-4 py-2 text-sm font-semibold shadow-sm hover:bg-white dark:hover:bg-gray-600 transition cursor-pointer w-full min-h-[40px]"
             >
               <span>{filterMode === "all" ? "All" : filterMode === "today" ? "Today" : filterMode === "upcoming" ? "Upcoming" : "Latest"}</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-80" viewBox="0 0 20 20" fill="currentColor">
@@ -316,11 +316,11 @@ export default function EventsPage() {
               </svg>
             </button>
             {showFilterMenu && (
-              <div className="absolute mt-2 w-40 rounded-xl border border-black/10 bg-white z-10 shadow-lg">
-                <button type="button" onClick={() => { setFilterMode("all"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">All</button>
-                <button type="button" onClick={() => { setFilterMode("today"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Today</button>
-                <button type="button" onClick={() => { setFilterMode("upcoming"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Upcoming</button>
-                <button type="button" onClick={() => { setFilterMode("latest"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50">Latest</button>
+              <div className="absolute mt-2 w-40 rounded-xl border border-black/10 bg-white dark:bg-gray-800 dark:border-white/10 dark:text-gray-100 z-10 shadow-lg">
+                <button type="button" onClick={() => { setFilterMode("all"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">All</button>
+                <button type="button" onClick={() => { setFilterMode("today"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">Today</button>
+                <button type="button" onClick={() => { setFilterMode("upcoming"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">Upcoming</button>
+                <button type="button" onClick={() => { setFilterMode("latest"); setShowFilterMenu(false); }} className="block w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-900/30">Latest</button>
               </div>
             )}
           </div>
@@ -347,7 +347,7 @@ export default function EventsPage() {
             step={1}
             value={radiusKm}
             onChange={(e) => setRadiusKm(Math.max(1, Math.min(200, parseFloat(e.target.value) || 0)))}
-            className="sm:col-span-1 md:col-span-1 rounded-xl border border-black/10 bg-white/60 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
+            className="sm:col-span-1 md:col-span-1 rounded-xl border border-black/10 bg-white/60 dark:bg-gray-700 dark:border-white/10 dark:text-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition min-h-[40px]"
             placeholder="Radius (km)"
             aria-label="Radius in kilometers"
             disabled={!nearMe}
@@ -410,7 +410,7 @@ export default function EventsPage() {
               <Link
                 key={ev.id}
                 href={`/events/${ev.id}`}
-                className="block group rounded-2xl overflow-hidden border border-black/10 bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-xl transition"
+                className="block group rounded-2xl overflow-hidden border border-black/10 bg-white/80 dark:bg-gray-800/90 dark:border-white/10 dark:text-gray-100 backdrop-blur-lg shadow-lg hover:shadow-xl transition"
               >
                 <div
                   className="w-full transform transition-transform duration-300 group-hover:scale-105"
@@ -425,11 +425,11 @@ export default function EventsPage() {
                 />
                 <div className="p-3">
                   <h3 className="font-semibold text-sm">{ev.title}</h3>
-                  <p className="text-xs opacity-70">{ev.city}</p>
-                  <p className="text-xs opacity-70">{ev.date}</p>
+                  <p className="text-xs opacity-70 dark:text-gray-300">{ev.city}</p>
+                  <p className="text-xs opacity-70 dark:text-gray-300">{ev.date}</p>
                   {/* Removed style badge since filters are date-based */}
                   {typeof ev._distanceKm === "number" && (
-                    <div className="mt-1 text-xs opacity-70">{ev._distanceKm.toFixed(1)} km away</div>
+                    <div className="mt-1 text-xs opacity-70 dark:text-gray-300">{ev._distanceKm.toFixed(1)} km away</div>
                   )}
                 </div>
               </Link>

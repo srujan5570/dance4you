@@ -403,7 +403,7 @@ export default function SubmitEventPage() {
   const previewImage = poster4x3 || (posterUrls[0] && posterUrls[0].trim()) ? posterUrls[0] : "/hero-placeholder.svg"
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-sans">
+    <main className="min-h-screen bg-background text-foreground dark:bg-gray-900 dark:text-gray-100 font-sans">
       {/* Gradient banner */}
       <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
         <div className="max-w-6xl mx-auto px-6 py-6 text-center">
@@ -418,8 +418,8 @@ export default function SubmitEventPage() {
           {/* Form card */}
           <div className="md:col-span-2">
             <div className="md:flex md:flex-row md:items-start md:gap-6">
-              <div className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-md shadow-xl md:flex-1">
-                <div className="px-5 py-4 border-b border-black/10 backdrop-blur-xl flex items-center justify-between">
+              <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-gray-800/90 backdrop-blur-md shadow-xl md:flex-1">
+                <div className="px-5 py-4 border-b border-black/10 dark:border-white/10 backdrop-blur-xl flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">Event details</h3>
                   <p className="text-xs opacity-70">Provide the core information for your event. Fields marked with * are required.</p>
@@ -455,7 +455,7 @@ export default function SubmitEventPage() {
                         key={label}
                         type="button"
                         onClick={() => setStep(idx)}
-                        className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${active ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white" : "border border-black/10 bg-white/60"}`}
+                        className={`px-3 py-1 rounded-full text-[11px] transition-transform transform hover:-translate-y-0.5 active:translate-y-0 ${active ? "bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white" : "border border-black/10 bg-white/60 dark:bg-gray-800 dark:border-gray-700 dark:text-white"}`}
                       >
                         {idx}. {label}
                       </button>
@@ -467,12 +467,12 @@ export default function SubmitEventPage() {
                 <div className={step === 1 ? "" : "hidden"}>
                 {/* Title */}
                 <div>
-                  <label className="text-xs opacity-70 flex items-center gap-1" title="Enter a clear event title (min 3 characters)">
+                  <label className="text-xs opacity-70 dark:text-white dark:opacity-90 flex items-center gap-1" title="Enter a clear event title (min 3 characters)">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v1H2V6zm0 3h16v5a2 2 0 01-2 2H4a2 2 0 01-2-2V9z" /></svg>
                     Title*
                   </label>
                   <input
-                    className={`mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition ${title && !validTitle ? "border-red-400" : ""}`}
+                    className={`mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-800 dark:border-gray-700 dark:text-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition ${title && !validTitle ? "border-red-400 dark:border-red-500" : ""}`}
                     placeholder="e.g., Bollywood Night"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -525,7 +525,7 @@ export default function SubmitEventPage() {
                     State (optional)
                   </label>
                   <input
-                    className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+                    className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-gray-700/80 dark:text-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                     placeholder="e.g., Telangana"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
@@ -550,7 +550,7 @@ export default function SubmitEventPage() {
                     Description (optional)
                   </label>
                   <textarea
-                    className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+                    className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-gray-700 dark:text-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                     placeholder="Describe your event…"
                     rows={4}
                     value={description}
@@ -572,7 +572,7 @@ export default function SubmitEventPage() {
                       type="file"
                       accept="image/*"
                       onChange={(e) => handlePoster4x3Upload(e.target.files)}
-                      className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
+                      className="mt-1 w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-gray-700 dark:text-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
                     />
                     <div className="text-[11px] opacity-70 mt-1">Required 4:3 aspect ratio (e.g., 800x600, 1200x900). Max size 10MB.</div>
                     {poster4x3Error && <div className="text-[11px] text-red-600 mt-1">{poster4x3Error}</div>}
@@ -901,7 +901,7 @@ export default function SubmitEventPage() {
                 <div className={step === 5 ? "" : "hidden"}>
                   {/* Submit */}
                   <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => setStep(4)} className="rounded-xl border border-black/10 bg-white/60 px-4 py-2 text-sm">Back</button>
+                    <button type="button" onClick={() => setStep(4)} className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-gray-700 dark:text-white px-4 py-2 text-sm">Back</button>
                     <button
                       className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-2 text-sm font-semibold shadow-lg disabled:opacity-60"
                       onClick={submit}
@@ -952,7 +952,7 @@ export default function SubmitEventPage() {
 
             {/* Preview card */}
             <aside className="sm:col-span-1 sm:col-start-2 md:col-span-1 md:col-start-3 md:flex-none md:w-[22rem]">
-              <div className="rounded-3xl border border-black/10 bg-white/80 backdrop-blur-lg shadow-xl overflow-hidden">
+              <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg shadow-xl overflow-hidden">
                 <div
                   className="w-full aspect-[4/3]"
                   style={{
