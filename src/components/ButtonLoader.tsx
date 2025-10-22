@@ -51,3 +51,6 @@ export default function ButtonLoader({
     </button>
   );
 }
+
+// Named export for compatibility
+export { ButtonLoader };
