@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getSavedLocation, getUserLocation, calculateDistance, saveUserLocation } from "@/lib/geolocation";
+import { getUserLocation, saveUserLocation } from "@/lib/geolocation";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function DanceWorkshopPage() {
   // Dynamic workshops listing with filters
@@ -199,7 +200,9 @@ export default function DanceWorkshopPage() {
       {/* Results */}
       <section className="max-w-6xl mx-auto px-6 pb-10">
         {loading ? (
-          <div className="text-center text-sm opacity-70">Loading workshops</div>
+          <div className="flex justify-center py-12">
+            <LoadingSpinner size="lg" color="orange" text="Loading workshops..." />
+          </div>
         ) : error ? (
           <div className="text-center text-sm text-red-600">{error}</div>
         ) : workshops.length === 0 ? (

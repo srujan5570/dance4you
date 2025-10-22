@@ -11,7 +11,18 @@ export async function GET() {
   const list = await prisma.booking.findMany({
     where: { userId: session.userId },
     orderBy: { createdAt: "desc" },
-    select: { id: true, eventId: true, name: true, email: true, tickets: true, note: true, createdAt: true, status: true },
+    select: { 
+      id: true, 
+      eventId: true, 
+      name: true, 
+      email: true, 
+      tickets: true, 
+      note: true, 
+      createdAt: true, 
+      status: true,
+      isDropInBooking: true,
+      dropInFee: true
+    },
   });
   return NextResponse.json(list, { status: 200 });
 }
@@ -23,7 +34,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const body = await req.json();
-    const { eventId, name, email, tickets, note } = body || {};
+    const { eventId, name, email, tickets, note, isDropInBooking, dropInFee } = body || {};
 
     if (!eventId || !name || !email) {
       return NextResponse.json({ error: "Missing required fields: eventId, name, email" }, { status: 400 });
@@ -43,6 +54,9 @@ export async function POST(req: Request) {
         note,
         userId: session.userId,
         status: "ACTIVE",
+        // Add drop-in booking specific fields
+        isDropInBooking: isDropInBooking || false,
+        dropInFee: isDropInBooking ? dropInFee : null,
       },
     });
 

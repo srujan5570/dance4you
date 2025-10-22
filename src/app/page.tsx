@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import Link from "next/link";
+import HeroEventCarousel from "@/components/HeroEventCarousel";
 
 export default async function Home() {
   // Build absolute base URL for server-side fetch
@@ -50,20 +51,8 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* Hero background area with subtle overlay to mimic screenshot */}
-      <section
-        className="relative w-full"
-        style={{
-          backgroundImage: "url('/hero-placeholder.svg')",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        <div className="h-[420px]" />
-        {/* dark top bar mimic */}
-        <div className="absolute top-0 left-0 right-0 h-8 bg-black/30" />
-      </section>
+      {/* Hero Event Carousel */}
+      <HeroEventCarousel />
 
       {/* Services - Offering */}
       <section className="max-w-6xl mx-auto px-6 py-16">

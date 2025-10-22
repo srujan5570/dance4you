@@ -12,6 +12,8 @@ import DesktopCityControl from "../components/DesktopCityControl";
 import AddToHomeScreen from "../components/AddToHomeScreen";
 import PWAInstaller from "../components/PWAInstaller";
 import NotificationPermission from "../components/NotificationPermission";
+import GlobalLoadingProvider from "../components/GlobalLoadingProvider";
+import NavigationLink from "../components/NavigationLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,6 +69,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="overflow-x-hidden">
       <body className={`${geistSans.variable} ${geistMono.variable} ${brandFont.variable} antialiased overflow-x-hidden min-h-screen`}>
+        <GlobalLoadingProvider>
         <header className="sticky top-0 z-30 bg-[#fff9e6] shadow-md backdrop-blur-sm bg-opacity-95">
           <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -80,61 +83,60 @@ export default async function RootLayout({
                 >
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f97316] to-[#f59e0b] group-hover:from-[#ea580c] group-hover:to-[#f97316] transition-all duration-300">
                   </span>
-                 <span
-                 style={{
+                  <span
+                    style={{
                       fontFamily: "Playfair Display, serif",
                       fontWeight: "bold",
                       fontStyle: "italic",
                       color: "#f97316",
-                      textShadow: "4px 8px 10pxrgb(28, 27, 26)" // light tan, wide and soft
+                      textShadow: "4px 8px 10px rgba(224, 113, 80, 1)" // light tan, wide and soft
                     }} 
-                        >
-                        Dance 4 You
-                        </span>
-
-
-
+                  >
+                    Dance 4 You
+                  </span>
                 </span>
               </Link>
             </div>
 
             <nav className="hidden md:flex items-center gap-6 text-[15px] font-medium">
-              <Link href="/" className="relative px-2 py-1 overflow-hidden group">
+              <NavigationLink href="/" className="relative px-2 py-1 overflow-hidden group">
                 <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Home</span>
                 <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-              </Link>
+              </NavigationLink>
               {session && (
-                <Link href="/dashboard" className="relative px-2 py-1 overflow-hidden group">
+                <NavigationLink href="/dashboard" className="relative px-2 py-1 overflow-hidden group">
                   <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">My Dashboard</span>
                   <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-                </Link>
+                </NavigationLink>
               )}
               {session?.role === "STUDENT" && (
-                <Link href="/chat" className="relative px-2 py-1 overflow-hidden group">
-                  <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Chat</span>
+                <NavigationLink href="/chat" className="relative px-2 py-1 overflow-hidden group">
+                  <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Chit Chat</span>
                   <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-                </Link>
+                </NavigationLink>
               )}
               {session?.role === "STUDIO_OWNER" ? (
-                <Link href="/dashboard" className="relative px-2 py-1 overflow-hidden group">
+                <NavigationLink href="/dashboard" className="relative px-2 py-1 overflow-hidden group">
                   <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">My Bookings</span>
                   <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-                </Link>
+                </NavigationLink>
               ) : (
-                <Link href="/learn-live" className="relative px-2 py-1 overflow-hidden group">
+                <NavigationLink href="/learn-live" className="relative px-2 py-1 overflow-hidden group">
                   <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Learn &amp; Live</span>
                   <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-                </Link>
+                </NavigationLink>
               )}
-              <Link href="/events" className="relative px-2 py-1 overflow-hidden group">
-                <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Book Online</span>
-                <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-              </Link>
+              {session?.role !== "STUDIO_OWNER" && (
+                <NavigationLink href="/events" className="relative px-2 py-1 overflow-hidden group">
+                  <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Book Online</span>
+                  <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
+                </NavigationLink>
+              )}
               {session?.role === "STUDIO_OWNER" && (
-                <Link href="/submit-event" className="relative px-2 py-1 overflow-hidden group">
+                <NavigationLink href="/submit-event" className="relative px-2 py-1 overflow-hidden group">
                   <span className="relative z-10 text-[#167C36] group-hover:text-white transition-colors duration-300 ease-out">Submit Event</span>
                   <span className="absolute inset-0 bg-[#167C36] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-                </Link>
+                </NavigationLink>
               )}
               {/* Persistent Change City control for desktop */}
               <DesktopCityControl />
@@ -354,6 +356,7 @@ export default async function RootLayout({
         <PWAInstaller />
         <AddToHomeScreen />
         <NotificationPermission />
+        </GlobalLoadingProvider>
       </body>
     </html>
   );

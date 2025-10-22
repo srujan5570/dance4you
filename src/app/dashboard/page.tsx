@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function DashboardPage() {
   const [session, setSession] = useState<{ authenticated: boolean; user?: { id?: string; email?: string; name?: string; role?: string } } | null>(null);
@@ -272,7 +273,9 @@ export default function DashboardPage() {
               </div>
 
               {loading ? (
-                <div className="mt-4 text-sm opacity-70">Loading…</div>
+                <div className="flex justify-center py-8">
+                  <LoadingSpinner size="md" color="orange" text="Loading bookings..." />
+                </div>
               ) : error ? (
                 <div className="mt-4 text-sm text-red-600">{error}</div>
               ) : filteredBookings.length === 0 ? (

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { validateImageAspectRatio, POSTER_ASPECT_RATIOS, isValidImageType, isValidFileSize } from "@/utils/imageValidation"
+import { ButtonLoader } from "@/components/ButtonLoader"
 // removed leaflet/react-leaflet imports to avoid SSR issues; MapPicker loads them client-side
 
 export default function SubmitEventPage() {
@@ -41,6 +42,8 @@ export default function SubmitEventPage() {
   const [prizes, setPrizes] = useState("")
   // Drop-in class enablement for Regular Class
   const [enableDropInClass, setEnableDropInClass] = useState(false)
+  const [dropInFee, setDropInFee] = useState("")
+  const [dropInDescription, setDropInDescription] = useState("")
   // Poster gallery (legacy)
   const [posterUrls, setPosterUrls] = useState<string[]>([])
   const [posterUrlInput, setPosterUrlInput] = useState("")
@@ -365,6 +368,8 @@ export default function SubmitEventPage() {
           battleRules,
           prizes,
           enableDropInClass,
+          dropInFee,
+          dropInDescription,
         }),
       })
       if (!res.ok) {
@@ -733,8 +738,40 @@ export default function SubmitEventPage() {
                         </label>
                       </div>
                       {enableDropInClass && (
-                        <div className="text-[11px] text-blue-600 mt-1 bg-blue-50 p-2 rounded-lg">
-                          ✓ This event will appear in both "Regular Class" and "Drop-In Class" categories
+                        <div className="space-y-3">
+                          <div className="text-[11px] text-blue-600 bg-blue-50 p-2 rounded-lg">
+                            ✓ This event will appear in both "Regular Class" and "Drop-In Class" categories
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-xs opacity-70 flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+                                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" />
+                                </svg>
+                                Drop-In Fee
+                              </label>
+                              <input
+                                className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-800 dark:border-gray-700 dark:text-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+                                value={dropInFee}
+                                onChange={(e) => setDropInFee(e.target.value)}
+                                placeholder="e.g., ₹500 per class"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs opacity-70 flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+                                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                </svg>
+                                Drop-In Description
+                              </label>
+                              <input
+                                className="mt-1 w-full rounded-xl border border-black/10 bg-white/60 dark:bg-gray-800 dark:border-gray-700 dark:text-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+                                value={dropInDescription}
+                                onChange={(e) => setDropInDescription(e.target.value)}
+                                placeholder="Special notes for drop-in students"
+                              />
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -902,14 +939,17 @@ export default function SubmitEventPage() {
                   {/* Submit */}
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => setStep(4)} className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-gray-700 dark:text-white px-4 py-2 text-sm">Back</button>
-                    <button
-                      className="rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-4 py-2 text-sm font-semibold shadow-lg disabled:opacity-60"
+                    <ButtonLoader
                       onClick={submit}
-                      disabled={submitting || !canSubmit}
+                      disabled={!canSubmit}
+                      loading={submitting}
+                      loadingText="Submitting..."
+                      variant="primary"
+                      type="button"
                       title={!canSubmit ? "Complete required fields before submitting" : "Submit your event"}
                     >
-                      {submitting ? "Submitting…" : "Submit"}
-                    </button>
+                      Submit
+                    </ButtonLoader>
                   </div>
 
                   {/* Status alerts */}

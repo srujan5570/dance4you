@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { ButtonLoader } from "@/components/ButtonLoader";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -106,9 +107,16 @@ export default function LoginPage() {
             <label htmlFor="remember">Remember me (30 days)</label>
           </div>
 
-          <button className="mt-2 w-full rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white py-2 font-semibold shadow-lg hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60" disabled={submitting || !canSubmit} type="submit">
-            {submitting ? "Logging in…" : `Log in as ${role === "STUDENT" ? "Dancer" : "Studio Owner"}`}
-          </button>
+          <ButtonLoader
+            loading={submitting}
+            disabled={!canSubmit}
+            type="submit"
+            variant="primary"
+            loadingText="Logging in..."
+            className="mt-2 w-full"
+          >
+            {`Log in as ${role === "STUDENT" ? "Dancer" : "Studio Owner"}`}
+          </ButtonLoader>
 
           <div className="text-xs opacity-70 dark:text-white dark:opacity-90 text-center">
             New here? <Link href="/auth/register" className="underline text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">Create an account</Link>

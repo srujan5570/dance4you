@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { ButtonLoader } from "@/components/ButtonLoader";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -93,9 +94,16 @@ export default function RegisterPage() {
             </div>
           </fieldset>
 
-          <button className="mt-2 w-full rounded bg-[#f97316] hover:bg-orange-600 text-white py-2 font-medium disabled:opacity-60" disabled={submitting || !canSubmit} type="submit">
-            {submitting ? "Registering…" : `Register as ${role === "STUDENT" ? "Dancer" : "Studio Owner"}`}
-          </button>
+          <ButtonLoader
+            loading={submitting}
+            disabled={!canSubmit}
+            type="submit"
+            variant="secondary"
+            loadingText="Registering..."
+            className="mt-2 w-full"
+          >
+            {`Register as ${role === "STUDENT" ? "Dancer" : "Studio Owner"}`}
+          </ButtonLoader>
 
           <div className="text-xs opacity-70 dark:text-white dark:opacity-90 text-center">
             Already have an account? <Link href="/auth/login" className="underline text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300">Log in</Link>

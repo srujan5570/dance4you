@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { readSessionCookie } from "@/lib/auth"
+import { citiesMatch, getCityAliases } from "@/lib/cityUtils"
 
 export async function GET(req: Request) {
   // Support server-side filtering via query params
@@ -17,8 +18,11 @@ export async function GET(req: Request) {
     where.category = categoryParam
   }
   if (cityParam) {
-    // Use broad contains for DB filtering; we'll apply exact match server-side if requested
-    where.city = { contains: cityParam }
+    // Get all possible city aliases for broader database search
+    const cityAliases = getCityAliases(cityParam);
+    where.OR = cityAliases.map(alias => ({
+      city: { contains: alias, mode: 'insensitive' }
+    }));
   }
   if (stateParam) {
     where.state = { contains: stateParam }
@@ -65,10 +69,10 @@ export async function GET(req: Request) {
     },
   })
 
-  // If exact match requested, apply strict case-insensitive equality on city/state
+  // If exact match requested, apply strict city alias matching
   let finalEvents = events
   if (cityParam && cityExact) {
-    finalEvents = finalEvents.filter(e => (e.city || "").trim().toLowerCase() === cityParam.trim().toLowerCase())
+    finalEvents = finalEvents.filter(e => citiesMatch(e.city || "", cityParam))
   }
   if (stateParam && stateExact) {
     finalEvents = finalEvents.filter(e => (e as any).state && ((e as any).state as string).trim().toLowerCase() === stateParam.trim().toLowerCase())
@@ -133,6 +137,8 @@ export async function POST(req: Request) {
       prizes,
       // Drop-in class enablement
       enableDropInClass,
+      dropInFee,
+      dropInDescription,
     } = body || {}
 
     if (!title || !city || !date || typeof style !== "string" || !String(style).trim()) {
@@ -210,6 +216,10 @@ export async function POST(req: Request) {
       recurrence,
       battleRules,
       prizes,
+      // Drop-in class fields
+      enableDropInClass: enableDropInClass || false,
+      dropInFee,
+      dropInDescription,
     }
 
     // Check if we need to create events in both categories
@@ -220,12 +230,16 @@ export async function POST(req: Request) {
           data: {
             ...eventData,
             category: "REGULAR_CLASS",
+            // Regular class keeps original fee and description
           },
         }),
         prisma.event.create({
           data: {
             ...eventData,
             category: "DROP_IN_CLASS",
+            // Drop-in class uses specific fee and description if provided
+            fee: dropInFee || fee,
+            description: dropInDescription || description,
           },
         }),
       ])

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import NavigationLink from "./NavigationLink";
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -157,14 +158,14 @@ export default function MobileNav() {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/></svg>
                 Change City ({city})
               </button>
-              <Link href="/" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Home</Link>
+              <NavigationLink href="/" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Home</NavigationLink>
               {session && session.authenticated && session.user?.role === "STUDENT" && (
-                <Link href="/chat" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Chat</Link>
+                <NavigationLink href="/chat" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Chit Chat</NavigationLink>
               )}
-              <Link href="/learn-live" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Learn &amp; Live</Link>
-              <Link href="/events" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Book Online</Link>
+              <NavigationLink href="/learn-live" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Learn &amp; Live</NavigationLink>
+              <NavigationLink href="/events" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Book Online</NavigationLink>
               {session && session.user?.role === "STUDIO_OWNER" && (
-                <Link href="/submit-event" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Submit Event</Link>
+                <NavigationLink href="/submit-event" className="py-2 hover:underline" onClick={() => setOpen(false)} style={{ color: "#167C36" }}>Submit Event</NavigationLink>
               )}
             </nav>
           </div>

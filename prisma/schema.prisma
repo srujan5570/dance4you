@@ -55,6 +55,10 @@ model Event {
   recurrence   String?
   battleRules  String?
   prizes       String?
+  // Drop-in class fields for regular classes
+  enableDropInClass Boolean?  @default(false)
+  dropInFee         String?
+  dropInDescription String?
   createdAt    DateTime      @default(now())
   ownerId      String?
   bookings     Booking[]
@@ -71,6 +75,9 @@ model Booking {
   createdAt DateTime      @default(now())
   status    BookingStatus @default(ACTIVE)
   userId    String?
+  // Drop-in booking specific fields
+  isDropInBooking Boolean   @default(false)
+  dropInFee       String?
   event     Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user      User?         @relation(fields: [userId], references: [id])
 }

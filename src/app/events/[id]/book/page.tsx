@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ButtonLoader } from "@/components/ButtonLoader";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function BookEventPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const eventId = (params?.id as string) || "";
+  const bookingType = searchParams.get("type") || "regular"; // "regular" or "dropin"
+  const isDropInBooking = bookingType === "dropin";
+  
   const [event, setEvent] = useState<{
     id?: string;
     title: string;
@@ -14,6 +20,11 @@ export default function BookEventPage() {
     date: string;
     style?: string;
     image?: string;
+    category?: string;
+    enableDropInClass?: boolean;
+    dropInFee?: string;
+    dropInDescription?: string;
+    fee?: string;
   } | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,8 +36,22 @@ export default function BookEventPage() {
   const [loadingEvent, setLoadingEvent] = useState(true);
   const [session, setSession] = useState<{ authenticated: boolean; user?: { role?: string } } | null>(null);
 
-  // Price per ticket (can be moved to event schema later)
-  const pricePerTicket = 499; // INR
+  // Price per ticket - use drop-in fee if booking drop-in, otherwise regular fee
+  const getEventPrice = () => {
+    if (!event) return 499;
+    if (isDropInBooking && event.dropInFee) {
+      // Extract numeric value from drop-in fee string
+      const match = event.dropInFee.match(/\d+/);
+      return match ? parseInt(match[0]) : 499;
+    }
+    if (event.fee) {
+      const match = event.fee.match(/\d+/);
+      return match ? parseInt(match[0]) : 499;
+    }
+    return 499;
+  };
+  
+  const pricePerTicket = getEventPrice();
   const subtotal = useMemo(() => tickets * pricePerTicket, [tickets, pricePerTicket]);
 
   useEffect(() => {
@@ -37,7 +62,19 @@ export default function BookEventPage() {
         const res = await fetch(`/api/events/${eventId}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          setEvent({ id: data.id, title: data.title, city: data.city, date: data.date, style: data.style, image: data.image });
+          setEvent({ 
+            id: data.id, 
+            title: data.title, 
+            city: data.city, 
+            date: data.date, 
+            style: data.style, 
+            image: data.image,
+            category: data.category,
+            enableDropInClass: data.enableDropInClass,
+            dropInFee: data.dropInFee,
+            dropInDescription: data.dropInDescription,
+            fee: data.fee
+          });
         }
       } catch {
         // ignore
@@ -79,7 +116,15 @@ export default function BookEventPage() {
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId, name, email, tickets: Number(tickets), note }),
+        body: JSON.stringify({ 
+          eventId, 
+          name, 
+          email, 
+          tickets: Number(tickets), 
+          note,
+          isDropInBooking,
+          dropInFee: isDropInBooking ? event?.dropInFee : undefined
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -105,13 +150,22 @@ export default function BookEventPage() {
       {/* Gradient banner */}
       <div className="w-full bg-gradient-to-b from-black via-orange-700 to-orange-400 text-white">
         <div className="max-w-6xl mx-auto px-6 py-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-wide">Book Tickets</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-wide">
+            {isDropInBooking ? "Book Drop-in Class" : "Book Tickets"}
+          </h2>
           {event ? (
             <p className="mt-1 text-sm sm:text-base opacity-95">
               {event.title} • {event.city} • {event.date}
+              {isDropInBooking && (
+                <span className="block text-xs mt-1 opacity-80">
+                  Drop-in Class Booking
+                </span>
+              )}
             </p>
           ) : (
-            <p className="mt-1 text-sm sm:text-base opacity-95">Loading event details…</p>
+            <div className="flex justify-center py-4">
+              <LoadingSpinner size="sm" color="white" text="Loading event details..." />
+            </div>
           )}
         </div>
       </div>
@@ -146,6 +200,27 @@ export default function BookEventPage() {
                     <div className="font-medium">{event.style}</div>
                   </>
                 )}
+                
+                {/* Show drop-in specific information */}
+                {isDropInBooking && event?.enableDropInClass && (
+                  <>
+                    <div className="mt-3 text-sm opacity-80 dark:text-gray-300">Booking Type</div>
+                    <div className="font-medium text-orange-600 dark:text-orange-400">Drop-in Class</div>
+                    {event.dropInDescription && (
+                      <>
+                        <div className="mt-3 text-sm opacity-80 dark:text-gray-300">Description</div>
+                        <div className="text-sm">{event.dropInDescription}</div>
+                      </>
+                    )}
+                    {event.dropInFee && (
+                      <>
+                        <div className="mt-3 text-sm opacity-80 dark:text-gray-300">Drop-in Fee</div>
+                        <div className="font-medium">{event.dropInFee}</div>
+                      </>
+                    )}
+                  </>
+                )}
+                
                 <Link href={`/events/${eventId}`} className="block mt-4 text-xs underline dark:text-gray-300">
                   View event details
                 </Link>
@@ -298,14 +373,17 @@ export default function BookEventPage() {
                 />
               </div>
 
-              <button
-                className="mt-6 w-full rounded bg-[#f97316] text-white py-2 font-medium disabled:opacity-60"
+              <ButtonLoader
+                loading={submitting}
+                disabled={!canSubmit}
                 type="submit"
-                disabled={submitting || !canSubmit}
+                variant="secondary"
+                loadingText="Booking..."
+                className="mt-6 w-full"
                 title={!canSubmit ? "Fill required details to proceed" : "Confirm your booking"}
               >
-                {submitting ? "Booking…" : "Confirm Booking"}
-              </button>
+                Confirm Booking
+              </ButtonLoader>
 
               <div className="text-[11px] opacity-70 mt-3 text-center">By booking, you agree to our terms and policies.</div>
             </form>

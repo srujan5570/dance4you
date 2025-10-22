@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { cleanCity, citiesMatch } from "@/lib/cityUtils";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 // Dynamically import the map component to avoid SSR issues
 const EventsMap = dynamic(() => import("@/components/EventsMap"), { ssr: false });
@@ -48,17 +50,6 @@ export default function EventsPage() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedState, setSelectedState] = useState<string | null>(null);
-
-  // Helper to normalize city names from navbar (strip state, fix common aliases)
-  function cleanCity(name: string | null | undefined): string {
-    const raw = String(name || "").trim();
-    if (!raw) return "";
-    // Use the segment before comma (drop ", State" suffixes)
-    let base = raw.split(",")[0].trim();
-    // Normalize common alias
-    if (base.toLowerCase() === "bangalore") base = "Bengaluru";
-    return base;
-  }
 
   // Get saved location or region from localStorage
   useEffect(() => {
@@ -218,7 +209,7 @@ export default function EventsPage() {
   const matchesDate = date ? ev.date === date : true;
   const matchesCategory = selectedCategory === "all" ? true : ev.category === selectedCategory;
   const matchesSelectedCity = selectedCity 
-    ? cleanCity(ev.city).toLowerCase() === cleanCity(selectedCity).toLowerCase()
+    ? citiesMatch(ev.city, selectedCity)
     : true;
   const matchesSelectedState = selectedState
     ? ((ev as any).state ? String((ev as any).state).trim().toLowerCase() === selectedState.trim().toLowerCase() : true)
@@ -389,7 +380,9 @@ export default function EventsPage() {
       {/* Results */}
       <section className="max-w-6xl mx-auto px-6 pb-10">
         {loading ? (
-          <div className="text-center text-sm opacity-70">Loading events…</div>
+          <div className="flex justify-center py-12">
+            <LoadingSpinner size="lg" color="orange" text="Loading events..." />
+          </div>
         ) : error ? (
           <div className="text-center text-sm text-red-600">{error}</div>
         ) : filtered.length === 0 ? (

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getSavedLocation, getUserLocation, calculateDistance } from "@/lib/geolocation";
+import { getUserLocation, saveUserLocation } from "@/lib/geolocation";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function RegularClassesPage() {
   // Replace static content with dynamic regular classes listing with filters
@@ -191,7 +192,9 @@ export default function RegularClassesPage() {
       {/* Results */}
       <section className="max-w-6xl mx-auto px-6 pb-10">
         {loading ? (
-          <div className="text-center text-sm opacity-70">Loading classes</div>
+          <div className="flex justify-center py-12">
+            <LoadingSpinner size="lg" color="orange" text="Loading classes..." />
+          </div>
         ) : error ? (
           <div className="text-center text-sm text-red-600">{error}</div>
         ) : regularClasses.length === 0 ? (
